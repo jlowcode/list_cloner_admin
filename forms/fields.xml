@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<form>
+    <fields addfieldpath="/administrator/components/com_fabrik/models/fields" name="params">
+
+        <fieldset name="plg-form-list_cloner" label="COM_FABRIK_OPTIONS">
+
+            <field name="list_link"
+                   label="PLG_FABRIK_FORM_LIST_CLONER_LIST_LINK_LABEL"
+                   description="PLG_FABRIK_FORM_LIST_CLONER_LIST_LINK_DESC"
+                   type="listfields"
+            />
+
+            <!-- INICIO - Atualização Nomes List_Cloner -->  
+            <!--<field name="titulo"
+                   label="PLG_FABRIK_FORM_LIST_CLONER_TITULO_LABEL"
+                   description="PLG_FABRIK_FORM_LIST_CLONER_TITULO_DESC"
+                   type="listfields"
+            />-->
+            <!-- FIM - Atualização Nomes List_Cloner -->
+
+            <field name="modelo"
+                   label="PLG_FABRIK_FORM_LIST_CLONER_MODELO_LABEL"
+                   description="PLG_FABRIK_FORM_LIST_CLONER_MODELO_DESC"
+                   type="listfields"
+            />
+
+            <field name="list_cloner_lista_modelo"
+                   label="PLG_FABRIK_FORM_LIST_CLONER_LISTA_MODELO_LABEL"
+                   key="name"
+                   type="tables"
+            />
+
+            <field name="list_cloner_element_name_lista_principal"
+                   label="PLG_FABRIK_FORM_LIST_CLONER_ELEMENT_NAME_LISTA_PRINCIPAL_LABEL"
+                   type="text"
+            />
+
+            <field name="list_cloner_element_name_listas_auxiliares"
+                   label="PLG_FABRIK_FORM_LIST_CLONER_ELEMENT_NAME_LISTAS_AUXILIARES_LABEL"
+                   type="text"
+            />
+
+        </fieldset>
+
+    </fields>
+</form>
