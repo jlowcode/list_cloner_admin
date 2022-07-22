@@ -1,9 +1,0 @@
-list_cloner.php -> web\plugins\fabrik_form\list_cloner\list_cloner.php
-
-fields.xml -> web\plugins\fabrik_form\list_cloner\forms\fields.xml
-
-pt-BR.plg_fabrik_form_list_cloner.ini -> web\plugins\fabrik_form\list_cloner\language\pt-BR\pt-BR.plg_fabrik_form_list_cloner.ini
-
-form_25.js -> web\components\com_fabrik\js\form_25.js
-
-nomesListCloner.php -> web\components\com_fabrik\nomesListCloner.php
