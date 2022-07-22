@@ -1082,7 +1082,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         $listName = $formModelData->getTableName();
         
         $newPrefix = $formModelData->formDataWithTableName[$listName . '___prefix'][0];
-        if($newPrefix != 'atual' && $newPrefix != '' && $prefix != null) {
+        if($newPrefix != 'atual' && $newPrefix != '' && $newPrefix != null) {
             $this->prefix = $newPrefix;
         }
     }
