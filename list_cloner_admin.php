@@ -307,9 +307,9 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         $this->clones_info[$listId] = $info;
         $this->tableNames[$info->old_db_table_name] = $info->db_table_name;
 
-        if (!$this->permissionLevel) {
+        /*if (!$this->permissionLevel) {
             $this->setUserGroup($listId);
-        }
+        }*/
 
         $a = $this->cloneForm($formModel->getTable(), $listId, $id, $is_suggest);
         $b = $this->cloneList($listModel->getTable(), $listId, $id, $is_suggest);
@@ -455,6 +455,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
             $dataMenu->home = 0;
             $dataMenu->language = '*';
             $dataMenu->client_id = 0;
+            $dataMenu->params = '{"addurl":"","show-title":"1","calculations":"0","listlayout":"","fabriklayout":"","resetfilters":"0","list_elements":"null","prefilters":"null","rows_per_page":"10","popup_width":"340","popup_opts_width":"200","csv_import_extensions":"txt,csv,tsv","csv_import_sil_only":"0","csv_import_dropdata":"0","csv_import_overwrite":"0","list_extra_query_string":"","menu-anchor_title":"","menu-anchor_css":"","menu_image":"","menu_image_css":"","menu_text":1,"menu_show":1,"page_title":"","show_page_heading":"","page_heading":"","pageclass_sfx":"","menu-meta_description":"","menu-meta_keywords":"","robots":"","secure":0,"helixultimatemenulayout":"","helixultimate_enable_page_title":"0","helixultimate_page_title_alt":"","helixultimate_page_subtitle":"","helixultimate_page_title_heading":"h2","helixultimate_page_title_bg_color":"","helixultimate_page_title_bg_image":""}';
 
             try {
                 $db->insertObject($this->prefix . 'menu', $dataMenu, 'id');
@@ -908,10 +909,6 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         $listParams = (array) $this->clones_info[$listId]->listParams;
         $mappedElements = $this->clones_info[$listId]->mappedElements;
         $mappedGroups = $this->clones_info[$listId]->mappedGroups;
-
-        //Access
-        $listParams['allow_edit_details'] = (string) $this->permissionLevel;
-        $listParams['allow_delete'] = (string) $this->permissionLevel;
 
         //List Search Elements
         $data = json_decode($listParams['list_search_elements']);
