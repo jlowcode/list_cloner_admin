@@ -37,13 +37,29 @@ Com a execução de todos os passos anteriores como passado neste manual a confi
 
 ![Configurar Plugin](Images/29.png)
 
-**4. Vincular itens ao menu**
+**4. Verificar elementos da clonagem**
+
+<p style="text-align: justify">Como a ordem de clonagem dos elementos, listas e formulários é feita de forma inversa é preciso verificar se os elementos databasejoin estão vinculados corretamente. Para isso vá em Componentes->Fabrik->Elements e filtre por plugins databasejoin. Após isso, deixe os elementos como nas figuras a seguir.</p>
+
+**4.1. Elemento main_list**
+
+![2.Elemento Lista Principal](Images/17.png)
+
+**4.2. Elemento extra_lists**
+
+![2.Elemento Lista Auxiliar](Images/19.png)
+
+**4.3. Elemento model**
+
+![2.Elemento Fulltext](Images/22.png)
+
+**5. Vincular itens ao menu**
 
 <p style="text-align: justify">Com as configurações anteriores finalizadas o próximo passo é vincular os itens criados no passo 2 ao menu principal no front-end para que seja acessado por usuários comuns, se assim for necessário. Para tal fim, vá em Menus->Main Menu no menu superior do administrador do Joomla, como segue abaixo, e depois clique em New no canto superior esquerdo da tela.</p>
 
 ![Menu](Images/30.png)
 
-**4.1. Vincular lista de modelos**
+**5.1. Vincular lista de modelos**
 
 <p style="text-align: justify">Como devemos primeiro criar modelos de clonagem para depois realizarmos a clonagem, vamos inicialmente vincular a lista de modelos, ao menu principal. Ao ser clicado em New, se abriará as opções de configuração de um novo item de menu, dessa forma, dê um nome ao título do menu em Menu Title e em Menu Item Type precione o botão select, em seguida, ao ser aberto a opção de tipos de menus clique em Fabrik->Lists para serem carregadas todas as listas criados, na opção Fabrik List selecione a lista modelo.
 
@@ -51,7 +67,7 @@ Por fim, clique em Save & Close, além disso, a configuração básica deste ite
 
 ![Menu Modelos](Images/31.png)
 
-**4.2. Vincular formulário de clonagem**
+**5.2. Vincular formulário de clonagem**
 
 <p style="text-align: justify">Com a lista de modelos estando no front-end, devemos agora vincular o formulário em que será realizado a efetiva clonagem desses modelos. Dessa forma, dê um nome ao título do menu em Menu Title e em Menu Item Type precione o botão select, em seguida, ao ser aberto a opção de tipos de menus clique em Fabrik->Forms para serem carregadas todas os formulários criados, na opção Fabrik Form selecione a lista de clones.
 
