@@ -32,7 +32,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
 
     public function onAfterProcess()
     {   
-        //Commented by the Author
+        //Commented by Author
         //$formModel = $this->getModel();
         //$this->data = $this->getProcessData();
         //$formModel->formData = $this->data;
@@ -67,7 +67,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         $update = (Object) $update;
         JFactory::getDbo()->updateObject($listName, $update, 'id');
 
-        //Commented by the Author
+        //Commented by Author
         //$this->clone_process($fields->lista_principal, true);
 
         if ($this->suggestId) {
@@ -330,7 +330,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         $listName = $formModelData->getTableName();
         //END - Update List_Cloner Names
 
-        //$data = $this->clones_info[$listId]->formData->getTable();    //Commented by the Author
+        //$data = $this->clones_info[$listId]->formData->getTable();    //Commented by Author
         $this->clones_info[$listId]->formParams = json_decode($data->params);
 
         $cloneData = new stdClass();
@@ -380,7 +380,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
     protected function cloneList($data, $listId, $id, $is_suggest = false) {
         $db = JFactory::getDbo();
         $fields_adm = $this->getFieldsAdministrator();
-        //$data = $this->clones_info[$listId]->listModel->getTable();  //Commented by the Author
+        //$data = $this->clones_info[$listId]->listModel->getTable();  //Commented by Author
 
         //BEGIN - Update List_Cloner Names
         $formModelData = $this->getModel();
@@ -422,7 +422,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         $cloneData->hits = $data->hits;
         $cloneData->rows_per_page = $data->rows_per_page;
         $cloneData->template = $data->template;
-        //$cloneData->order_by = $data->order_by;   //Commented by the Author
+        //$cloneData->order_by = $data->order_by;   //Commented by Author
         $cloneData->order_dir = $data->order_dir;
         $cloneData->filter_action = $data->filter_action;
         $cloneData->group_by = $data->group_by;
@@ -474,7 +474,11 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         $db = JFactory::getDbo();
         $ordering = 1;
 
-        //$groups = $this->clones_info[$listId]->formModel->getGroupsHiarachy();    //Commented by the Author
+        //Updated to different names groups
+        $nameGroup = str_replace('_', ' ', $this->clones_info[$listId]->db_table_name);
+        count($groups) > 1 ? $x = 1 : $x = ''; 
+
+        //$groups = $this->clones_info[$listId]->formModel->getGroupsHiarachy();    //Commented by Author
         foreach ($groups as $groupModel) {
             $cloneData = $groupModel->getGroup()->getProperties();
             unset($cloneData['join_id']);
@@ -484,6 +488,12 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
             $cloneData->created = date('Y-m-d H:i:s');
             $cloneData->created_by = $this->user->id;
             $cloneData->created_by_alias = $this->user->username;
+
+            //Updated to different names groups
+            $cloneData->name = trim($nameGroup . ' ' . $x);
+            $cloneData->label = trim($nameGroup . ' ' . $x);
+            $x++;
+
             $insert1 = $db->insertObject($this->prefix . 'fabrik_groups', $cloneData, 'id');
 
             $obj = new stdClass();
@@ -553,7 +563,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
     protected function cloneElements($elementsModel, $group_id, $listId, $id) {
         $db = JFactory::getDbo();
         $fields_adm = $this->getFieldsAdministrator();
-        //$ordering = 1;    //Commented by the Author
+        //$ordering = 1;    //Commented by Author
 
         foreach ($elementsModel as $elementModel) {
             $cloneData = $elementModel->getElement()->getProperties();
@@ -565,7 +575,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
             $cloneData->created_by = $this->user->id;
             $cloneData->created_by_alias = $this->user->username;
             $cloneData->modified = date('Y-m-d H:i:s');
-            //$cloneData->ordering = $ordering;     //Commented by the Author
+            //$cloneData->ordering = $ordering;     //Commented by Author
 
             $params = json_decode($cloneData->params);
             if ($cloneData->plugin === 'databasejoin') {
@@ -660,7 +670,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
                 return false;
             }
 
-            //$ordering++;  //Commented by the Author
+            //$ordering++;  //Commented by Author
         }
 
         return true;
@@ -878,7 +888,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
             $data2->elemento_destino = $newData2;
             $formParams['list_elemento_destino'] = json_encode($data2);
 
-            //Commented by the Author
+            //Commented by Author
             //$formParams['elemento_origem'] = (string) $mappedElements[$formParams['elemento_origem']];
             //$formParams['elemento_destino'] = (string) $mappedElements[$formParams['elemento_destino']];
         }
