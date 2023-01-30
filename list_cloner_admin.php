@@ -441,24 +441,27 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         if($formModelData->formDataWithTableName[$listName . '___listas_menu']) {
             $dataMenu = new stdClass();
             $dataMenu->id = 0;
-            $dataMenu->menutype = 'mainmenu';
             $dataMenu->title = $cloneData->label;
-            $dataMenu->alias = str_replace(' ', '-', $dataMenu->title);
-            $dataMenu->path = $dataMenu->alias;
+            $dataManu->alias = '';
+            $dataManu->note = '';
             $dataMenu->link = 'index.php?option=com_fabrik&view=list&listid=' . $db->insertid();
+            $dataMenu->menutype = 'mainmenu';
             $dataMenu->type = 'component';
             $dataMenu->published = 1;
             $dataMenu->parent_id = 1;
-            $dataMenu->level = 1;
-            $dataMenu->component_id = 10004;
+            $dataMenu->component_id = 10281;
+            $dataManu->broserNav = 0;
             $dataMenu->access = 1;
+            $dataMenu->template_style_id = 0;
             $dataMenu->home = 0;
             $dataMenu->language = '*';
-            $dataMenu->client_id = 0;
-            $dataMenu->params = '{"addurl":"","show-title":"1","calculations":"0","listlayout":"","fabriklayout":"","resetfilters":"0","list_elements":"null","prefilters":"null","rows_per_page":"10","popup_width":"340","popup_opts_width":"200","csv_import_extensions":"txt,csv,tsv","csv_import_sil_only":"0","csv_import_dropdata":"0","csv_import_overwrite":"0","list_extra_query_string":"","menu-anchor_title":"","menu-anchor_css":"","menu_image":"","menu_image_css":"","menu_text":1,"menu_show":1,"page_title":"","show_page_heading":"","page_heading":"","pageclass_sfx":"","menu-meta_description":"","menu-meta_keywords":"","robots":"","secure":0,"helixultimatemenulayout":"","helixultimate_enable_page_title":"0","helixultimate_page_title_alt":"","helixultimate_page_subtitle":"","helixultimate_page_title_heading":"h2","helixultimate_page_title_bg_color":"","helixultimate_page_title_bg_image":""}';
+            $dataMenu->toggle_modules_assigned = 1;
+            $dataMenu->toggle_modules_published = 1;
+            //$dataMenu->params = '{"addurl":"","show-title":"1","calculations":"0","listlayout":"","fabriklayout":"","resetfilters":"0","list_elements":"null","prefilters":"null","rows_per_page":"10","popup_width":"340","popup_opts_width":"200","csv_import_extensions":"txt,csv,tsv","csv_import_sil_only":"0","csv_import_dropdata":"0","csv_import_overwrite":"0","list_extra_query_string":"","menu-anchor_title":"","menu-anchor_css":"","menu_image":"","menu_image_css":"","menu_text":1,"menu_show":1,"page_title":"","show_page_heading":"","page_heading":"","pageclass_sfx":"","menu-meta_description":"","menu-meta_keywords":"","robots":"","secure":0,"helixultimatemenulayout":"","helixultimate_enable_page_title":"0","helixultimate_page_title_alt":"","helixultimate_page_subtitle":"","helixultimate_page_title_heading":"h2","helixultimate_page_title_bg_color":"","helixultimate_page_title_bg_image":""}';
 
             try {
-                $db->insertObject($this->prefix . 'menu', $dataMenu, 'id');
+                $menu = new MenusModelItem();
+                $menu->save((array) $dataMenu);
             }
             catch (RuntimeException $e) {
                 $err        = new stdClass;
@@ -470,13 +473,24 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         return true;
     }
 
-    protected function cloneGroupsAndElements($groups, $listId, $id) {
+    protected function cloneGroupsAndElements($groups, $listId, $id, $is_suggest = false) {
         $db = JFactory::getDbo();
-        $ordering = 1;
+        $fields_adm = $this->getFieldsAdministrator();
+
+        //BEGIN - Update List_Cloner Names
+        $formModelData = $this->getModel();
+        $listName = $formModelData->getTableName();
+        //END - Update List_Cloner Names
 
         //Updated to different names groups
-        $nameGroup = str_replace('_', ' ', $this->clones_info[$listId]->db_table_name);
-        count($groups) > 1 ? $x = 1 : $x = ''; 
+        count($groups) > 1 ? $x = 1 : $x = '';
+        if ((($listId === $fields_adm->lista_principal) || ($is_suggest)) && ($fields_adm->titulo)) {
+            $nameGroup = $fields_adm->titulo;
+        } else {
+            $nameGroup = $formModelData->formDataWithTableName[$listName . '___list_name_' . $id];
+        }
+
+        $ordering = 1;
 
         //$groups = $this->clones_info[$listId]->formModel->getGroupsHiarachy();    //Commented by Author
         foreach ($groups as $groupModel) {
