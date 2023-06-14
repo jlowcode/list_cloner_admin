@@ -46,19 +46,41 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         $this->listaPrincipal = $fields->lista_principal;
         $this->setPrefix(); //Added by "Names update"
 
+        if(!$formData[$listName . '___table_name_principal']) {
+            $app = $this->app;
+            $app->getMessageQueue(true);
+            $app->enqueueMessage('Ocorreu um erro na clonagem das listas');
+
+            return false;
+        }
+
         if ($fields->lista_principal) {
             //BEGIN - Correction of repeatable groups
             $this->checkTableName($formData[$listName . '___table_name_principal'], 0);
             if ($fields->listas_auxiliares) {
                 $x = 1;
                 foreach ($fields->listas_auxiliares as $item) {
+                    if(!$formData[$listName . '___table_name_auxiliar_' . $x]) {
+                        $app = $this->app;
+                        $app->getMessageQueue(true);
+                        $app->enqueueMessage('Ocorreu um erro na clonagem das listas');
+            
+                        return false;
+                    }
                     $this->checkTableName($formData[$listName . '___table_name_auxiliar_' . $x], $x);
                     $x++;
                 }
             }
             //END - Correction of repeatable groups
 
-            $this->clone_process($fields->lista_principal, 0);
+            $process = $this->clone_process($fields->lista_principal, 0);
+            if(!$process) {
+                $app = $this->app;
+                $app->getMessageQueue(true);
+                $app->enqueueMessage('Ocorreu um erro na clonagem das listas');
+    
+                return false;
+            }
         }
 
         $update = array();
@@ -71,7 +93,15 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         //$this->clone_process($fields->lista_principal, true);
 
         if ($this->suggestId) {
-            $this->clone_process($this->suggestId, 0, true);
+            $process = $this->clone_process($this->suggestId, 0, true);
+            if(!$process) {
+                $app = $this->app;
+                $app->getMessageQueue(true);
+                $app->enqueueMessage('Ocorreu um erro na clonagem das listas');
+    
+                return false;
+            }
+            
             $db = JFactory::getDbo();
             $query = $db->getQuery(true);
             $query->select('params')->from("#__fabrik_elements")->where('id = ' . (int) $this->suggestElementId);
@@ -114,7 +144,14 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         if ($fields->listas_auxiliares) {
             $x = 1;
             foreach ($fields->listas_auxiliares as $item) {
-                $this->clone_process($item, $x);
+                $process = $this->clone_process($item, $x);
+                if(!$process) {
+                    $app = $this->app;
+                    $app->getMessageQueue(true);
+                    $app->enqueueMessage('Ocorreu um erro na clonagem das listas');
+        
+                    return false;
+                }
                 $x++;
             }
         }
@@ -126,7 +163,6 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
             $e = $this->replaceElementsIdFormParams($key);
             $f = $this->replaceElementsIdListParams($key);
         }
-
 
         $app = $this->app;
         $app->getMessageQueue(true);
@@ -313,6 +349,11 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
 
         $a = $this->cloneForm($formModel->getTable(), $listId, $id, $is_suggest);
         $b = $this->cloneList($listModel->getTable(), $listId, $id, $is_suggest);
+
+        if(!$a || !$b) {
+            return false;
+        }
+
         $c = $this->cloneGroupsAndElements($formModel->getGroupsHiarachy(), $listId, $id);
 
         if (!$is_suggest) {
@@ -341,6 +382,9 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         else {
             //$cloneData->label = $data->label; //Name update
             $cloneData->label = $formModelData->formDataWithTableName[$listName . '___list_name_' . $id];
+            if (!$cloneData->label) {
+                return false;
+            }
         }
         if ($is_suggest) {
             $cloneData->label .= ' - Revisão';
@@ -398,6 +442,9 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         else {
             //$cloneData->label = $data->label; //Names update
             $cloneData->label = $formModelData->formDataWithTableName[$listName . '___list_name_' . $id];
+            if (!$cloneData->label) {
+                return false;
+            }
         }
         if ($is_suggest) {
             $cloneData->label .= ' - Revisão';
@@ -481,7 +528,8 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         $formModelData = $this->getModel();
         $listName = $formModelData->getTableName();
         //END - Update List_Cloner Names
-
+        
+        /* Commented due to RF04 of the report "Relatório de testes plugin List cloner"
         //Updated to different names groups
         count($groups) > 1 ? $x = 1 : $x = '';
         if ((($listId === $fields_adm->lista_principal) || ($is_suggest)) && ($fields_adm->titulo)) {
@@ -489,6 +537,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         } else {
             $nameGroup = $formModelData->formDataWithTableName[$listName . '___list_name_' . $id];
         }
+        */
 
         $ordering = 1;
 
@@ -503,10 +552,12 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
             $cloneData->created_by = $this->user->id;
             $cloneData->created_by_alias = $this->user->username;
 
+            /* Commented due to RF04 of the report "Relatório de testes plugin List cloner"
             //Updated to different names groups
             $cloneData->name = trim($nameGroup . ' ' . $x);
             $cloneData->label = trim($nameGroup . ' ' . $x);
             $x++;
+            */
 
             $insert1 = $db->insertObject($this->prefix . 'fabrik_groups', $cloneData, 'id');
 
