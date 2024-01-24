@@ -28,8 +28,9 @@ jQuery(document).ready(function() {
 function SetPrincipal(result) {
   jQuery(".fabrikGroup").append(htmlLinha('principal'));
   jQuery(".principal").append(htmlLabel(result.nomeListaPrincipal, 'Nome da Lista Principal'));
-  jQuery(".principal").append(htmlElement(result.tabelaListaModelo, 'principal', 'list', 'Nome da Lista'));
-  jQuery(".principal").append(htmlElement(result.tabelaListaModelo, 'principal', 'table', 'Nome da Tabela', result.sugestaoListaPrincipal));
+  jQuery(".principal").append("<div style='display: flex;justify-content: space-around;width: 100%;'></div>");
+  jQuery(".principal > div").append(htmlElement(result.tabelaListaModelo, 'principal', 'list', 'Nome da Lista'));
+  jQuery(".principal > div").append(htmlElement(result.tabelaListaModelo, 'principal', 'table', 'Nome da Tabela', result.sugestaoListaPrincipal));
 }
 
 function SetAuxiliares(result) {
@@ -69,7 +70,6 @@ function htmlLabel(labelPrincipal, label) {
   style += "display: flex;";
   style += "flex-direction: column;";
   style += "align-items: center;";
-  style += "margin: -1px 0px 0px 0px !important;";
 
   html = '<p style="' + style +'"><b>' + label + ':</b><span style="margin-top: 12px;">' + labelPrincipal + '</span></p>';
 

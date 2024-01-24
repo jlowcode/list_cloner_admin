@@ -13,13 +13,8 @@
 	// including the main joomla files
 	require_once(JPATH_BASE.'/includes/defines.php');
 	require_once(JPATH_BASE.'/includes/framework.php');
-	
-	// Creating an app instance 
-	$app = JFactory::getApplication('site');
-	
-	$app->initialise();
-	jimport('joomla.user.user');
-	jimport('joomla.user.helper');
+
+	use Joomla\CMS\Factory;
 
 	// Dados do Form e Pré Estabelecidos //
 	$idTableModel = $_GET['tableModel'];
@@ -27,7 +22,7 @@
 	$listModel = $_GET['listModel'];
 
 	// Ligação ao banco de dados //	
-	$db = JFactory::getDbo();
+	$db = Factory::getDbo();
 	$query = $db->getQuery(true);
 	$prefix = $db->getPrefix();
 
@@ -99,7 +94,7 @@
 	echo json_encode($resultTotal);	
 
 	function checkTableName ($name, $usuario) {
-        $db = JFactory::getDbo();
+        $db = Factory::getDbo();
 
         $name = $usuario . '_' . $name;
         $continue = false;
