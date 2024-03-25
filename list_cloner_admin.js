@@ -1,5 +1,6 @@
 jQuery(document).ready(function() {
   var actualTable = jQuery("[name='actualTable']").val();
+  var easy = jQuery("[name='easy']").val();
   jQuery("#" + actualTable + "___model").on('change', function() {
       jQuery(".classAddManual").remove();
       var listid = jQuery("[name='listid']").val();
@@ -12,8 +13,8 @@ jQuery(document).ready(function() {
   
           if(result.sucesso != '' && result.erro == '') {
               var msg = result.sucesso;
-              SetPrincipal(result);
-              SetAuxiliares(result);
+              SetPrincipal(result, easy);
+              SetAuxiliares(result, easy);
           }
           
           if(result.sucesso == '' && result.erro != '') {
@@ -25,21 +26,22 @@ jQuery(document).ready(function() {
   });
 });
 
-function SetPrincipal(result) {
+function SetPrincipal(result, easy) {
   jQuery(".fabrikGroup").append(htmlLinha('principal'));
   jQuery(".principal").append(htmlLabel(result.nomeListaPrincipal, 'Nome da Lista Principal'));
   jQuery(".principal").append("<div style='display: flex;justify-content: space-around;width: 100%;'></div>");
   jQuery(".principal > div").append(htmlElement(result.tabelaListaModelo, 'principal', 'list', 'Nome da Lista'));
-  jQuery(".principal > div").append(htmlElement(result.tabelaListaModelo, 'principal', 'table', 'Nome da Tabela', result.sugestaoListaPrincipal));
+  easy != '1' ? jQuery(".principal > div").append(htmlElement(result.tabelaListaModelo, 'principal', 'table', 'Nome da Tabela', result.sugestaoListaPrincipal)) : '';
 }
 
-function SetAuxiliares(result) {
+function SetAuxiliares(result, easy) {
   result.arrAuxiliares.forEach((element, index) => {
     if(element.nome !== null && element.id !== null) {
       jQuery(".fabrikGroup").append(htmlLinha('auxiliar_'+(index+1)));
       jQuery('.auxiliar_'+(index+1)).append(htmlLabel(element.nome, 'Nome da Lista Auxiliar '+(index+1)));
-      jQuery('.auxiliar_'+(index+1)).append(htmlElement(result.tabelaListaModelo, 'auxiliar_'+(index+1), 'list', 'Nome da Lista'));
-      jQuery('.auxiliar_'+(index+1)).append(htmlElement(result.tabelaListaModelo, 'auxiliar_'+(index+1), 'table', 'Nome da Tabela', element.sugestao));
+      jQuery('.auxiliar_'+(index+1)).append("<div style='display: flex;justify-content: space-around;width: 100%;'></div>");
+      jQuery('.auxiliar_'+(index+1)+' > div').append(htmlElement(result.tabelaListaModelo, 'auxiliar_'+(index+1), 'list', 'Nome da Lista'));
+      easy != '1' ? jQuery('.auxiliar_'+(index+1)+' > div').append(htmlElement(result.tabelaListaModelo, 'auxiliar_'+(index+1), 'table', 'Nome da Tabela', element.sugestao)) : '';
     }
   });
 }
@@ -80,7 +82,7 @@ function htmlElement(tabelaListaModelo, id, tipo, label, value='') {
   html =  '<div class="control-group fabrikElementContainer plg-field fb_el_' + tabelaListaModelo + '___' + tipo + '_name_' + id + ' fabrikDataEmpty span6">';
   html +=    '<label for="' + tabelaListaModelo + '___' + tipo + '_name_' + id + '" class="fabrikLabel control-label">' + label + '</label>';
   html +=    '<div class="fabrikElement">';
-  html +=      '<input type="text" id="' + tabelaListaModelo + '___' + tipo + '_name_' + id + '" name="' + tabelaListaModelo + '___' + tipo + '_name_' + id + '" size="10" maxlength="255" class="input-medium form-control fabrikinput inputbox text" value="' + value + '">';
+  html +=      '<input type="text" id="' + tabelaListaModelo + '___' + tipo + '_name_' + id + '" name="' + tabelaListaModelo + '___' + tipo + '_name_' + id + '" maxlength="255" class="input-medium form-control fabrikinput inputbox text" value="' + value + '">';
   html +=    '</div>';
   html +=    '<div class="fabrikErrorMessage">';
   html +=    '</div>';

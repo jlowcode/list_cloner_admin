@@ -1,15 +1,13 @@
 <?php
 
+use Joomla\Component\Menus\Administrator\Model\ItemModel;
+
 // No direct access
 defined('_JEXEC') or die('Restricted access');
 
 // Require the abstract plugin class
 require_once COM_FABRIK_FRONTEND . '/models/plugin-form.php';
-include_once (JPATH_BASE . '/plugins/fabrik_form/list_cloner_admin/cloner/Cloner.class.php'); //VERIFICAR!!
-//BEGIN - Update List_Cloner Names
-include_once (JPATH_ADMINISTRATOR . '/components/com_menus/models/item.php');
-include_once (JPATH_ADMINISTRATOR . '/components/com_menus/tables/menu.php');
-//END - Update List_Cloner Names
+include_once (JPATH_BASE . '/plugins/fabrik_form/list_cloner_admin/cloner/Cloner.class.php');
 
 class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
 {
@@ -23,6 +21,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
     protected $suggestCond;
     protected $suggestCloned = false;
     protected $prefix;
+    protected $easy;
 
     protected $tableNames = array();
     protected $elementsId = array();
@@ -32,6 +31,9 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
 
     public function onAfterProcess()
     {   
+        $params = $this->getParams();
+        $this->easy = $params->get('list_cloner_admin_easy');
+
         //Commented by Author
         //$formModel = $this->getModel();
         //$this->data = $this->getProcessData();
@@ -46,7 +48,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         $this->listaPrincipal = $fields->lista_principal;
         $this->setPrefix(); //Added by "Names update"
 
-        if(!$formData[$listName . '___table_name_principal']) {
+        if(!$formData[$listName . '___table_name_principal'] && !$this->easy) {
             $app = $this->app;
             $app->getMessageQueue(true);
             $app->enqueueMessage('Ocorreu um erro na clonagem das listas');
@@ -56,18 +58,21 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
 
         if ($fields->lista_principal) {
             //BEGIN - Correction of repeatable groups
-            $this->checkTableName($formData[$listName . '___table_name_principal'], 0);
+            $nameTable = $this->easy == '1' ? preg_replace('/\s+/', '_', preg_replace('/[^a-zA-Z0-9\s]/', '_', iconv('UTF-8', 'ASCII//TRANSLIT', $formData[$listName . '___list_name_principal']))) : $formData[$listName . '___table_name_principal'];
+            $this->checkTableName($nameTable, 0);
             if ($fields->listas_auxiliares) {
                 $x = 1;
                 foreach ($fields->listas_auxiliares as $item) {
-                    if(!$formData[$listName . '___table_name_auxiliar_' . $x]) {
+                    if(!$formData[$listName . '___table_name_auxiliar_' . $x] && !$this->easy) {
                         $app = $this->app;
                         $app->getMessageQueue(true);
                         $app->enqueueMessage('Ocorreu um erro na clonagem das listas');
             
                         return false;
                     }
-                    $this->checkTableName($formData[$listName . '___table_name_auxiliar_' . $x], $x);
+
+                    $nameTableAux = $this->easy == '1' ? preg_replace('/\s+/', '_', preg_replace('/[^a-zA-Z0-9\s]/', '_', iconv('UTF-8', 'ASCII//TRANSLIT', $formData[$listName . '___list_name_auxiliar_' . $x]))) : $formData[$listName . '___table_name_auxiliar_' . $x];
+                    $this->checkTableName($nameTableAux, $x);
                     $x++;
                 }
             }
@@ -176,14 +181,19 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         $this->loadJS();
 
         $actualTable = $formModel->getTableName();
-        //$actualTable = $this->getModel()->form->db_table_name;
+        $easy = $params->get('list_cloner_admin_easy');
         $listModel = $params->get('list_cloner_admin_lista_modelo');
         $arrValues = Array(
             'actualTable' => $actualTable,
-            'listModel' => $listModel
+            'listModel' => $listModel,
+            'easy' => $easy
         );
 
         $document->addScriptDeclaration($this->addNewHiddenField($arrValues));
+
+        if($easy) {
+            $document->addStyleDeclaration('.fb_el_adm_cloner_listas___prefixo, .fb_el_adm_cloner_listas___listas_menu {display: none;}');
+        }
     }
 
     protected function addNewHiddenField($arrValues) {
@@ -333,7 +343,9 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         $info->elementsRepeat = array();
         $info->newListJoinsIds = array();
         $info->old_db_table_name = $formModel->getTableName();
-        $info->db_table_name = $this->checkTableName($formModelData->formDataWithTableName[$listName . '___table_name_' . $id]);
+
+        $nameTable = $this->easy == '1' ? preg_replace('/\s+/', '_', preg_replace('/[^a-zA-Z0-9\s]/', '_', iconv('UTF-8', 'ASCII//TRANSLIT', $formModelData->formDataWithTableName[$listName . '___list_name_' . $id]))) : $formModelData->formDataWithTableName[$listName . '___table_name_' . $id];
+        $info->db_table_name = $this->checkTableName($nameTable);
 
         if ($is_suggest) {
             $info->old_db_table_name = $this->clones_info[$this->listaPrincipal]->old_db_table_name;
@@ -359,6 +371,8 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         if (!$is_suggest) {
             $d = $this->createTables($listId);
         }
+
+        return true;
     }
 
     // $id Added by "Names update"
@@ -405,7 +419,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         $cloneData->submit_button_label = $data->submit_button_label;
         $cloneData->form_template = $data->form_template;
         $cloneData->view_only_template = $data->view_only_template;
-        $cloneData->published = $data->published;
+        $cloneData->published = 1;
         $cloneData->private = $data->private;
         $cloneData->params = $data->params;
 
@@ -423,6 +437,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
     // $id Added by "Names update"
     protected function cloneList($data, $listId, $id, $is_suggest = false) {
         $db = JFactory::getDbo();
+        $params = $this->getParams();
         $fields_adm = $this->getFieldsAdministrator();
         //$data = $this->clones_info[$listId]->listModel->getTable();  //Commented by Author
 
@@ -462,7 +477,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         $cloneData->modified_by = $this->user->id;
         $cloneData->checked_out = $data->checked_out;
         $cloneData->checked_out_time = $data->checked_out_time;
-        $cloneData->published = $data->published;
+        $cloneData->published = 1;
         $cloneData->publish_up = $data->publish_up;
         $cloneData->publish_down = $data->publish_down;
         $cloneData->access = $data->access;
@@ -485,29 +500,31 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
 
         $this->clones_info[$listId]->listId = $db->insertid();
 
-        if($formModelData->formDataWithTableName[$listName . '___listas_menu']) {
+        if($formModelData->formDataWithTableName[$listName . '___listas_menu'] || $this->easy) {
+            $db->setQuery("SELECT extension_id FROM joj0l_extensions WHERE `name` = 'com_fabrik' AND `type` = 'component'");
+            $component_id = $db->loadResult();
+
             $dataMenu = new stdClass();
             $dataMenu->id = 0;
             $dataMenu->title = $cloneData->label;
-            $dataManu->alias = '';
-            $dataManu->note = '';
-            $dataMenu->link = 'index.php?option=com_fabrik&view=list&listid=' . $db->insertid();
-            $dataMenu->menutype = 'mainmenu';
+            $dataMenu->alias = '';
+            $dataMenu->note = '';
+            $dataMenu->link = 'index.php?option=com_fabrik&view=list&listid=' . $this->clones_info[$listId]->listId;
+            $dataMenu->menutype = $params->get('list_cloner_admin_menu', 'mainmenu');
             $dataMenu->type = 'component';
             $dataMenu->published = 1;
             $dataMenu->parent_id = 1;
-            $dataMenu->component_id = 10281;
-            $dataManu->broserNav = 0;
+            $dataMenu->component_id = $component_id;
+            $dataMenu->broserNav = 0;
             $dataMenu->access = 1;
             $dataMenu->template_style_id = 0;
             $dataMenu->home = 0;
             $dataMenu->language = '*';
             $dataMenu->toggle_modules_assigned = 1;
             $dataMenu->toggle_modules_published = 1;
-            //$dataMenu->params = '{"addurl":"","show-title":"1","calculations":"0","listlayout":"","fabriklayout":"","resetfilters":"0","list_elements":"null","prefilters":"null","rows_per_page":"10","popup_width":"340","popup_opts_width":"200","csv_import_extensions":"txt,csv,tsv","csv_import_sil_only":"0","csv_import_dropdata":"0","csv_import_overwrite":"0","list_extra_query_string":"","menu-anchor_title":"","menu-anchor_css":"","menu_image":"","menu_image_css":"","menu_text":1,"menu_show":1,"page_title":"","show_page_heading":"","page_heading":"","pageclass_sfx":"","menu-meta_description":"","menu-meta_keywords":"","robots":"","secure":0,"helixultimatemenulayout":"","helixultimate_enable_page_title":"0","helixultimate_page_title_alt":"","helixultimate_page_subtitle":"","helixultimate_page_title_heading":"h2","helixultimate_page_title_bg_color":"","helixultimate_page_title_bg_image":""}';
 
             try {
-                $menu = new MenusModelItem();
+                $menu = new ItemModel();
                 $menu->save((array) $dataMenu);
             }
             catch (RuntimeException $e) {
@@ -1022,12 +1039,14 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         //Open Archive Elements
         if ($listParams['open_archive_elements']) {
             $data2 = json_decode($listParams['open_archive_elements']);
-            $newData2 = array();
-            foreach ($data2->dublin_core_element as $item) {
-                $newData2[] = (string) $mappedElements[$item];
+            if(is_object($listParams['open_archive_elements'])) {
+                $newData2 = array();
+                foreach ($data2->dublin_core_element as $item) {
+                    $newData2[] = (string) $mappedElements[$item];
+                }
+                $data2->dublin_core_element = $newData2;
+                $listParams['open_archive_elements'] = json_encode($data2);
             }
-            $data2->dublin_core_element = $newData2;
-            $listParams['open_archive_elements'] = json_encode($data2);
         }
 
         //Search Title
@@ -1153,7 +1172,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         $formModelData = $this->getModel();
         $listName = $formModelData->getTableName();
         
-        $newPrefix = $formModelData->formDataWithTableName[$listName . '___prefix'][0];
+        $newPrefix = $formModelData->formDataWithTableName[$listName . '___prefixo'][0];
         if($newPrefix != 'atual' && $newPrefix != '' && $newPrefix != null) {
             $this->prefix = $newPrefix;
         }

@@ -2,8 +2,7 @@
 <form>
     <fields addfieldpath="/administrator/components/com_fabrik/models/fields" name="params">
 
-        <fieldset name="plg-form-list_cloner_admin" label="COM_FABRIK_OPTIONS">
-
+       <fieldset name="plg-form-list_cloner_admin" label="COM_FABRIK_OPTIONS">
             <field name="list_link"
                    label="PLG_FABRIK_FORM_LIST_CLONER_ADMIN_LIST_LINK_LABEL"
                    description="PLG_FABRIK_FORM_LIST_CLONER_ADMIN_LIST_LINK_DESC"
@@ -39,8 +38,15 @@
                    label="PLG_FABRIK_FORM_LIST_CLONER_ADMIN_ELEMENT_NAME_LISTAS_AUXILIARES_LABEL"
                    type="text"
             />
+       </fieldset>
 
-        </fieldset>
-
+       <fieldset name="plg-form-list_cloner_admin-menu" label="COM_FABRIK_OPTIONS_MENU">
+              <field name="list_cloner_admin_menu"
+                   label="PLG_FABRIK_FORM_LIST_CLONER_ADMIN_MENU_LABEL"
+                   description="PLG_FABRIK_FORM_LIST_CLONER_ADMIN_MENU_DESC"
+                   type="text"
+                   default="mainmenu"
+              />
+       </fieldset>
     </fields>
 </form>
