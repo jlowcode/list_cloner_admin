@@ -82,7 +82,7 @@ function htmlElement(tabelaListaModelo, id, tipo, label, value='') {
   html =  '<div class="control-group fabrikElementContainer plg-field fb_el_' + tabelaListaModelo + '___' + tipo + '_name_' + id + ' fabrikDataEmpty span6">';
   html +=    '<label for="' + tabelaListaModelo + '___' + tipo + '_name_' + id + '" class="fabrikLabel control-label">' + label + '</label>';
   html +=    '<div class="fabrikElement">';
-  html +=      '<input type="text" id="' + tabelaListaModelo + '___' + tipo + '_name_' + id + '" name="' + tabelaListaModelo + '___' + tipo + '_name_' + id + '" maxlength="255" class="input-medium form-control fabrikinput inputbox text" value="' + value + '">';
+  html +=      '<input type="text" id="' + tabelaListaModelo + '___' + tipo + '_name_' + id + '" name="' + tabelaListaModelo + '___' + tipo + '_name_' + id + '" maxlength="255" size="50" class="input-medium form-control fabrikinput inputbox text" value="' + value + '">';
   html +=    '</div>';
   html +=    '<div class="fabrikErrorMessage">';
   html +=    '</div>';
