@@ -501,7 +501,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         $this->clones_info[$listId]->listId = $db->insertid();
 
         if($formModelData->formDataWithTableName[$listName . '___listas_menu'] || $this->easy) {
-            $db->setQuery("SELECT extension_id FROM joj0l_extensions WHERE `name` = 'com_fabrik' AND `type` = 'component'");
+            $db->setQuery('SELECT extension_id FROM #__extensions WHERE `name` = "com_fabrik" AND `type` = "component"');
             $component_id = $db->loadResult();
 
             $dataMenu = new stdClass();
