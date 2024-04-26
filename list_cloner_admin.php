@@ -546,7 +546,6 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         $listName = $formModelData->getTableName();
         //END - Update List_Cloner Names
         
-        /* Commented due to RF04 of the report "Relatório de testes plugin List cloner"
         //Updated to different names groups
         count($groups) > 1 ? $x = 1 : $x = '';
         if ((($listId === $fields_adm->lista_principal) || ($is_suggest)) && ($fields_adm->titulo)) {
@@ -554,7 +553,6 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         } else {
             $nameGroup = $formModelData->formDataWithTableName[$listName . '___list_name_' . $id];
         }
-        */
 
         $ordering = 1;
 
@@ -569,12 +567,10 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
             $cloneData->created_by = $this->user->id;
             $cloneData->created_by_alias = $this->user->username;
 
-            /* Commented due to RF04 of the report "Relatório de testes plugin List cloner"
             //Updated to different names groups
             $cloneData->name = trim($nameGroup . ' ' . $x);
             $cloneData->label = trim($nameGroup . ' ' . $x);
             $x++;
-            */
 
             $insert1 = $db->insertObject($this->prefix . 'fabrik_groups', $cloneData, 'id');
 
