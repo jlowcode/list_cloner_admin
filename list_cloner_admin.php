@@ -226,8 +226,8 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         $ug = new stdClass();
         $ug->id = 0;
         $ug->parent_id = 2;
-        $ug->lft = 0;
-        $ug->rgt = 0;
+        $ug->lft = 17;
+        $ug->rgt = 18;
         $ug->title = $this->clones_info[$id_principal]->db_table_name;
         $db->insertObject("#__usergroups", $ug, 'id');
 
@@ -242,7 +242,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         $level->id = 0;
         $level->title = $this->clones_info[$id_principal]->db_table_name;
         $level->ordering = 0;
-        $level->rules = "[6,2,8]";
+        $level->rules = "[{$ug_id}, 8]";
         $db->insertObject("#__viewlevels", $level, 'id');
 
         $this->permissionLevel = $db->insertid();
@@ -355,9 +355,9 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         $this->clones_info[$listId] = $info;
         $this->tableNames[$info->old_db_table_name] = $info->db_table_name;
 
-        /*if (!$this->permissionLevel) {
+        if (!$this->permissionLevel && $this->easy) {
             $this->setUserGroup($listId);
-        }*/
+        }
 
         $a = $this->cloneForm($formModel->getTable(), $listId, $id, $is_suggest);
         $b = $this->cloneList($listModel->getTable(), $listId, $id, $is_suggest);
@@ -489,8 +489,19 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         $cloneData->filter_action = $data->filter_action;
         $cloneData->group_by = $data->group_by;
         $cloneData->private = $data->private;
-        $cloneData->params = $data->params;
 
+        if($this->easy) {
+            $dataParams = json_decode($data->params, true);
+            foreach ($dataParams as $key => $value) {
+                if($key == 'allow_edit_details' || $key == 'allow_add' || $key == 'allow_delete') {
+                    $dataParams[$key] = (int) $this->permissionLevel;
+                } else {
+                    $dataParams[$key] = $value;
+                }
+            }
+        }
+        $cloneData->params = (int) $this->easy ? json_encode($dataParams) : $data->params;
+        $this->clones_info[$listId]->listParams = (int) $this->easy ? $dataParams : $this->clones_info[$listId]->listParams;
 
         $insert = $db->insertObject($this->prefix . 'fabrik_lists', $cloneData, 'id');
 
