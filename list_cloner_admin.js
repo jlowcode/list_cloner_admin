@@ -27,6 +27,7 @@ jQuery(document).ready(function() {
 });
 
 function SetPrincipal(result, easy) {
+  jQuery("#adm_cloner_listas___name").val(result.nomeListaPrincipal);
   jQuery(".fabrikGroup").append(htmlLinha('principal'));
   jQuery(".principal").append(htmlLabel(result.nomeListaPrincipal, 'Nome da Lista Principal'));
   jQuery(".principal").append("<div style='display: flex;justify-content: space-around;width: 100%;'></div>");

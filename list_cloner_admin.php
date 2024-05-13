@@ -225,9 +225,9 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
 
         $ug = new stdClass();
         $ug->id = 0;
-        $ug->parent_id = 2;
-        $ug->lft = 17;
-        $ug->rgt = 18;
+        $ug->parent_id = 1;
+        $ug->lft = 2;
+        $ug->rgt = 3;
         $ug->title = $this->clones_info[$id_principal]->db_table_name;
         $db->insertObject("#__usergroups", $ug, 'id');
 
