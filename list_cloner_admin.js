@@ -27,11 +27,11 @@ jQuery(document).ready(function() {
 });
 
 function SetPrincipal(result, easy) {
-  jQuery("#adm_cloner_listas___name").val(result.nomeListaPrincipal);
+  var nameSuggest = jQuery("#adm_cloner_listas___name").val();
   jQuery(".fabrikGroup").append(htmlLinha('principal'));
   jQuery(".principal").append(htmlLabel(result.nomeListaPrincipal, 'Nome da Lista Principal'));
   jQuery(".principal").append("<div style='display: flex;justify-content: space-around;width: 100%;'></div>");
-  jQuery(".principal > div").append(htmlElement(result.tabelaListaModelo, 'principal', 'list', 'Nome da Lista'));
+  jQuery(".principal > div").append(htmlElement(result.tabelaListaModelo, 'principal', 'list', 'Nome da Lista', nameSuggest));
   easy != '1' ? jQuery(".principal > div").append(htmlElement(result.tabelaListaModelo, 'principal', 'table', 'Nome da Tabela', result.sugestaoListaPrincipal)) : '';
 }
 
