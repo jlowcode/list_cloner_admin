@@ -5,9 +5,12 @@ use Joomla\Component\Menus\Administrator\Model\ItemModel;
 // No direct access
 defined('_JEXEC') or die('Restricted access');
 
+use Joomla\CMS\Router\Route;
+
 // Require the abstract plugin class
 require_once COM_FABRIK_FRONTEND . '/models/plugin-form.php';
 include_once (JPATH_BASE . '/plugins/fabrik_form/list_cloner_admin/cloner/Cloner.class.php');
+
 
 class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
 {
@@ -91,7 +94,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         $update = array();
         $update['id'] = $this->rowId;
         //$update[$fields->link] = COM_FABRIK_LIVESITE . 'index.php?option=com_fabrik&view=list&listid=' . $this->clones_info[$fields->lista_principal]->listId;
-        $update[$fields->link] = COM_FABRIK_LIVESITE . strtolower(trim(preg_replace('/[^a-zA-Z0-9]+/', '-', $formData[$listName . '___list_name_principal']), '-'));
+        $update[$fields->link] = COM_FABRIK_LIVESITE . strtolower(trim(preg_replace('/[^a-zA-Z0-9]+/', '-', iconv('UTF-8', 'ASCII//TRANSLIT', $formData[$listName . '___list_name_principal'])), '-'));
         $update = (Object) $update;
         JFactory::getDbo()->updateObject($listName, $update, 'id');
 
@@ -173,6 +176,12 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         $app = $this->app;
         $app->getMessageQueue(true);
         $app->enqueueMessage('Lista clonada com sucesso!');
+
+        // Redirect to new list if easy mode
+        if((bool) $this->easy) {
+            $context = $formModel->getRedirectContext();
+            $this->session->set($context . 'url', Route::_('index.php?option=com_fabrik&view=list&listid=' . $this->clones_info[$this->listaPrincipal]->listId, false));
+        }
     }
 
     public function onLoad() {
@@ -424,6 +433,20 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         $cloneData->private = $data->private;
         $cloneData->params = $data->params;
 
+        if($this->easy) {
+            $dataParams = json_decode($data->params, true);
+            foreach ($dataParams as $key => $value) {
+                // allow_review_request => Workflow plugin
+                if($key == 'allow_review_request') {
+                    $dataParams[$key] = (int) $this->permissionLevel;
+                } else {
+                    $dataParams[$key] = $value;
+                }
+            }
+        }
+        $cloneData->params = (int) $this->easy ? json_encode($dataParams) : $data->params;
+        $this->clones_info[$listId]->formParams = (int) $this->easy ? $dataParams : $this->clones_info[$listId]->formParams;
+
         $insert = $db->insertObject($this->prefix . 'fabrik_forms', $cloneData, 'id');
 
         if (!$insert) {
@@ -494,7 +517,8 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         if($this->easy) {
             $dataParams = json_decode($data->params, true);
             foreach ($dataParams as $key => $value) {
-                if($key == 'allow_edit_details' || $key == 'allow_add' || $key == 'allow_delete') {
+                // allow_review_request => Workflow plugin
+                if($key == 'allow_edit_details' || $key == 'allow_add' || $key == 'allow_delete' || $key == 'allow_review_request') {
                     $dataParams[$key] = (int) $this->permissionLevel;
                 } else {
                     $dataParams[$key] = $value;
@@ -708,7 +732,6 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
                 }
 
                 if (($reviewId) && (!$this->suggestCloned)) {
-                    $db = JFactory::getDbo();
                     $query = $db->getQuery(true);
                     $query->select('id')->from($this->prefix . "fabrik_lists")->where("form_id = " . (int) $reviewId);
                     $db->setQuery($query);
@@ -747,6 +770,29 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
             }
             else if ($cloneData->plugin === 'user') {
                 $this->cloneJoin($elementModel->getJoinModel()->getJoin(), $element_id, $cloneData->name, $listId, $group_id, 'user');
+
+                if($this->easy && $cloneData->name == 'created_by') {
+                    $query = $db->getQuery(true);
+                    $query->select('params')->from($this->prefix . "fabrik_forms")->where("id = " . (int) $this->clones_info[$listId]->formId);
+                    $db->setQuery($query);
+
+                    $dataParams = json_decode($db->loadResult(), true);
+                    foreach ($dataParams as $key => $value) {
+                        // workflow_owner_element => Workflow plugin
+                        if($key == 'workflow_owner_element') {
+                            $dataParams[$key] = (int) $element_id;
+                        } else {
+                            $dataParams[$key] = $value;
+                        }
+                    }
+
+                    $query = $db->getQuery(true);
+                    $query->update($this->prefix . "fabrik_forms")->set('params = ' . $db->q(json_encode($dataParams)))->where("id = " . (int) $this->clones_info[$listId]->formId);
+                    $db->setQuery($query);
+                    $db->execute();
+
+                    $this->clones_info[$listId]->formParams = $dataParams;
+                }
             }
             else if ($cloneData->plugin === 'survey') {
                 $this->clones_info[$listId]->elementsRepeat[] = $cloneData->name;
