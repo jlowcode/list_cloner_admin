@@ -38,6 +38,13 @@
                    label="PLG_FABRIK_FORM_LIST_CLONER_ADMIN_ELEMENT_NAME_LISTAS_AUXILIARES_LABEL"
                    type="text"
             />
+
+            <field name="list_cloner_admin_parent_group"
+                   label="PLG_FABRIK_FORM_LIST_CLONER_ADMIN_PARENT_GROUP_LABEL"
+                   description="PLG_FABRIK_FORM_LIST_CLONER_ADMIN_PARENT_GROUP_DESC"
+                   type="usergrouplist"
+                   default="1"
+            />
        </fieldset>
 
        <fieldset name="plg-form-list_cloner_admin-menu" label="COM_FABRIK_OPTIONS">

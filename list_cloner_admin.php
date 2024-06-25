@@ -6,6 +6,8 @@ use Joomla\Component\Menus\Administrator\Model\ItemModel;
 defined('_JEXEC') or die('Restricted access');
 
 use Joomla\CMS\Router\Route;
+use Joomla\Component\Users\Administrator\Model\GroupModel;
+use Joomla\CMS\Factory;
 
 // Require the abstract plugin class
 require_once COM_FABRIK_FRONTEND . '/models/plugin-form.php';
@@ -110,7 +112,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
     
                 return false;
             }
-            
+
             $db = JFactory::getDbo();
             $query = $db->getQuery(true);
             $query->select('params')->from("#__fabrik_elements")->where('id = ' . (int) $this->suggestElementId);
@@ -231,17 +233,21 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
     }
 
     protected function setUserGroup($id_principal) {
+        $groupModel = new GroupModel();
+        $app = Factory::getApplication();
         $db = JFactory::getDbo();
+        $params = $this->getParams();
+        
+        $parentGroup = (int) $params->get('list_cloner_admin_parent_group');
 
-        $ug = new stdClass();
-        $ug->id = 0;
-        $ug->parent_id = 1;
-        $ug->lft = 2;
-        $ug->rgt = 3;
-        $ug->title = $this->clones_info[$id_principal]->db_table_name;
-        $db->insertObject("#__usergroups", $ug, 'id');
+        $ug = Array();
+        $ug['id'] = 0;
+        $ug['parent_id'] = $parentGroup;
+        $ug['title'] = $this->clones_info[$id_principal]->db_table_name;
+        //$db->insertObject("#__usergroups", $ug, 'id');
 
-        $ug_id = $db->insertid();
+        $groupModel->save($ug);
+        $ug_id = (int) $app->getInput()->get('newUserGroupId');
 
         $ug_map = new stdClass();
         $ug_map->user_id = $this->user->id;
@@ -256,6 +262,14 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         $db->insertObject("#__viewlevels", $level, 'id');
 
         $this->permissionLevel = $db->insertid();
+    }
+
+    public function onUserAfterSaveGroup($context, $table, $isNew) {
+        $app = JFactory::getApplication();
+        $newUserGroupId = $table->id;
+        $app->getInput()->set("newUserGroupId", $newUserGroupId);
+
+        return $newUserGroupId;
     }
 
     protected function getFieldsAdministrator() {
