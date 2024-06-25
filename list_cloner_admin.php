@@ -182,7 +182,9 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         // Redirect to new list if easy mode
         if((bool) $this->easy) {
             $context = $formModel->getRedirectContext();
-            $this->session->set($context . 'url', Route::_('index.php?option=com_fabrik&view=list&listid=' . $this->clones_info[$this->listaPrincipal]->listId, false));
+            $update = (array) $update;
+            $this->session->set($context . 'url', $update[$fields->link]);
+            //$this->session->set($context . 'url', Route::_('index.php?option=com_fabrik&view=list&listid=' . $this->clones_info[$this->listaPrincipal]->listId, false));
         }
     }
 
