@@ -240,7 +240,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         $db = JFactory::getDbo();
         $params = $this->getParams();
         
-        $parentGroup = (int) $params->get('list_cloner_admin_parent_group');
+        $parentGroup = (int) $params->get('list_cloner_admin_parent_group', '1');
 
         $ug = Array();
         $ug['id'] = 0;
