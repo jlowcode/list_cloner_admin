@@ -96,7 +96,8 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         $update = array();
         $update['id'] = $this->rowId;
         //$update[$fields->link] = COM_FABRIK_LIVESITE . 'index.php?option=com_fabrik&view=list&listid=' . $this->clones_info[$fields->lista_principal]->listId;
-        $update[$fields->link] = COM_FABRIK_LIVESITE . strtolower(trim(preg_replace('/[^a-zA-Z0-9]+/', '-', iconv('UTF-8', 'ASCII//TRANSLIT', $formData[$listName . '___list_name_principal'])), '-'));
+        $update[$fields->link] = "/" . strtolower(trim(preg_replace('/[^a-zA-Z0-9]+/', '-', iconv('UTF-8', 'ASCII//TRANSLIT', $formData[$listName . '___list_name_principal'])), '-'));
+        $update['id_lista_principal'] = (int) $this->clones_info[$this->listaPrincipal]->listId;
         $update = (Object) $update;
         JFactory::getDbo()->updateObject($listName, $update, 'id');
 
