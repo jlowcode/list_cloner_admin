@@ -58,12 +58,13 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
             $app->getMessageQueue(true);
             $app->enqueueMessage('Ocorreu um erro na clonagem das listas');
 
-            return false;
+            return false;                                                                                                                                                                                                                                       
         }
 
-        if ($fields->lista_principal) {
+        if ($fields->lista_principal) {                                                 
             //BEGIN - Correction of repeatable groups
             $nameTable = $this->easy == '1' ? preg_replace('/\s+/', '_', preg_replace('/[^a-zA-Z0-9\s]/', '_', iconv('UTF-8', 'ASCII//TRANSLIT', $formData[$listName . '___list_name_principal']))) : $formData[$listName . '___table_name_principal'];
+            $nameTable = substr($nameTable, 0, 40);
             $this->checkTableName($nameTable, 0);
             if ($fields->listas_auxiliares) {
                 $x = 1;
@@ -77,6 +78,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
                     }
 
                     $nameTableAux = $this->easy == '1' ? preg_replace('/\s+/', '_', preg_replace('/[^a-zA-Z0-9\s]/', '_', iconv('UTF-8', 'ASCII//TRANSLIT', $formData[$listName . '___list_name_auxiliar_' . $x]))) : $formData[$listName . '___table_name_auxiliar_' . $x];
+                    $nameTableAux = substr($nameTable, 0, 40);
                     $this->checkTableName($nameTableAux, $x);
                     $x++;
                 }
@@ -372,6 +374,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         $info->old_db_table_name = $formModel->getTableName();
 
         $nameTable = $this->easy == '1' ? preg_replace('/\s+/', '_', preg_replace('/[^a-zA-Z0-9\s]/', '_', iconv('UTF-8', 'ASCII//TRANSLIT', $formModelData->formDataWithTableName[$listName . '___list_name_' . $id]))) : $formModelData->formDataWithTableName[$listName . '___table_name_' . $id];
+        $nameTable = substr($nameTable, 0, 40);
         $info->db_table_name = $this->checkTableName($nameTable);
 
         if ($is_suggest) {
@@ -605,6 +608,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
             $nameGroup = $fields_adm->titulo;
         } else {
             $nameGroup = $formModelData->formDataWithTableName[$listName . '___list_name_' . $id];
+            $nameTable = substr($nameTable, 0, 40);
         }
 
         $ordering = 1;
@@ -1192,10 +1196,14 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
 
         foreach($this->elementsId as $elementId) {
             $query = $db->getQuery(true);
-            $query->select('params')->from($this->prefix . 'fabrik_elements')->where("id = '{$elementId}'");
+            $query->select('e.params AS element_params, j.params AS join_params, j.table_join AS table_join, j.id AS join_id')
+                ->from($this->prefix . 'fabrik_elements AS e')
+                ->join('LEFT', $this->prefix . 'fabrik_joins AS j ON j.element_id = e.id')
+                ->where("e.id = '{$elementId}'");
             $db->setQuery($query);
-            $result = $db->loadResult();
-            $params = json_decode($result);
+            $result = $db->loadObject();
+            $params = json_decode($result->element_params);
+            $paramsJoin = json_decode($result->join_params);
             if (array_key_exists($params->join_db_name, $this->tableNames)) {
                 $params->join_db_name = $this->tableNames[$params->join_db_name];
                 $params = json_encode($params);
@@ -1208,11 +1216,19 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
             foreach($this->tableNames as $oldTableName => $newNameTable) {
                 if($this->checkTableNameOld($oldTableName) == $params->join_db_name) {
                     $params->join_db_name = $newNameTable;
+                    $params->databasejoin_popupform = $this->clones_info[(int) $params->databasejoin_popupform]->listId;
                     $params = json_encode($params);
                     $update = new stdClass();
                     $update->id = $elementId;
                     $update->params = $params;
                     $db->updateObject($this->prefix . 'fabrik_elements', $update, 'id');
+
+                    $updateJoin = new stdClass();
+                    $updateJoin->table_join = $newNameTable;
+                    $paramsJoin->pk = str_replace($result->table_join, $newNameTable, $paramsJoin->pk);
+                    $updateJoin->id = $result->join_id;
+                    $updateJoin->params = json_encode($paramsJoin);
+                    $db->updateObject($this->prefix . 'fabrik_joins', $updateJoin, 'id');
                 }
             }
         }
