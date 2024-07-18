@@ -231,10 +231,13 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
     }
 
     protected function loadJS() {
+        $options = json_encode(Array());
         $jsFiles = Array();
+        $jsFiles['Fabrik'] = 'media/com_fabrik/js/fabrik.js';
         $jsFiles['list_cloner_admin'] = '/plugins/fabrik_form/list_cloner_admin/list_cloner_admin.js';
+        $script = "var list_cloner_admin = new list_cloner_admin($options);";
 
-        FabrikHelperHTML::script($jsFiles);
+        FabrikHelperHTML::script($jsFiles, $script);
     }
 
     protected function setUserGroup($id_principal) {
@@ -400,6 +403,36 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
 
         if (!$is_suggest) {
             $d = $this->createTables($listId);
+        }
+
+        $this->saveAuxiliarLists($formModelData, $listName, $id);
+        
+
+        return true;
+    }
+
+    // To save the auxiliar lists on the table
+    protected function saveAuxiliarLists($formModelData, $listName, $id) {
+        $db = Factory::getDbo();
+
+        if($id == 'principal') {
+            return;
+        }
+
+        $dataAux = new stdClass();
+        $dataAux->date_time = date('Y-m-d H:i:s');
+        $dataAux->user = $this->user->id;
+        $dataAux->name = $formModelData->formDataWithTableName[$listName . '___list_name_' . $id];
+        $dataAux->model = $formModelData->formDataWithTableName[$listName . '___model'][0];
+        $dataAux->link = "/" . strtolower(trim(preg_replace('/[^a-zA-Z0-9]+/', '-', iconv('UTF-8', 'ASCII//TRANSLIT', $formModelData->formDataWithTableName[$listName . '___list_name_' . $id])), '-'));
+        $dataAux->listas_menu = '0';
+        $dataAux->prefixo = $this->prefix;
+        $dataAux->id_lista_principal = $this->clones_info[$this->listaPrincipal]->listId;
+
+        $insert = $db->insertObject($listName, $dataAux, 'id');
+
+        if (!$insert) {
+            return false;
         }
 
         return true;
