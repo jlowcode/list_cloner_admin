@@ -83,12 +83,12 @@ define(['jquery', 'fab/fabrik'], function (jQuery, Fabrik) {
             if(easy == '1') {
                 nameSuggest = result.nomeListaPrincipal;
             } else {
-                jQuery(".principal").append(self.htmlLabel(result.nomeListaPrincipal, 'Nome da Lista Principal'));
+                jQuery("#group1 .principal").append(self.htmlLabel(result.nomeListaPrincipal, 'Nome da Lista Principal'));
             }
 
-            jQuery(".principal").append("<div style='display: flex; justify-content: start; width: 100%;'></div>");
-            jQuery(".principal > div").append(self.htmlElement(result.tabelaListaModelo, 'principal', 'list', 'Altere ou complemente o nome da sua lista:', nameSuggest));
-            easy != '1' ? jQuery(".principal > div").append(self.htmlElement(result.tabelaListaModelo, 'principal', 'table', 'Nome da Tabela', result.sugestaoListaPrincipal)) : '';
+            jQuery("#group1 .principal").append("<div style='display: flex; justify-content: start; width: 100%;'></div>");
+            jQuery("#group1 .principal > div").append(self.htmlElement(result.tabelaListaModelo, 'principal', 'list', 'Altere ou complemente o nome da sua lista:', nameSuggest));
+            easy != '1' ? jQuery("#group1 .principal > div").append(self.htmlElement(result.tabelaListaModelo, 'principal', 'table', 'Nome da Tabela', result.sugestaoListaPrincipal)) : '';
         },
 
         setAuxiliares: function (result, easy) {
@@ -101,12 +101,12 @@ define(['jquery', 'fab/fabrik'], function (jQuery, Fabrik) {
                     if(easy == '1') {
                         var nameSuggest = element.nome;
                     } else {
-                        jQuery('.auxiliar_'+(index+1)).append(self.htmlLabel(element.nome, 'Nome da Lista Auxiliar '+(index+1)));
+                        jQuery('#group1 .auxiliar_'+(index+1)).append(self.htmlLabel(element.nome, 'Nome da Lista Auxiliar '+(index+1)));
                     }
                     
-                    jQuery('.auxiliar_'+(index+1)).append("<div style='display: flex; justify-content: start; width: 100%;'></div>");
-                    jQuery('.auxiliar_'+(index+1)+' > div').append(self.htmlElement(result.tabelaListaModelo, 'auxiliar_'+(index+1), 'list', 'Altere ou complemente o nome da sua lista:', nameSuggest));
-                    easy != '1' ? jQuery('.auxiliar_'+(index+1)+' > div').append(self.htmlElement(result.tabelaListaModelo, 'auxiliar_'+(index+1), 'table', 'Nome da Tabela', element.sugestao)) : '';
+                    jQuery('#group1 .auxiliar_'+(index+1)).append("<div style='display: flex; justify-content: start; width: 100%;'></div>");
+                    jQuery('#group1 .auxiliar_'+(index+1)+' > div').append(self.htmlElement(result.tabelaListaModelo, 'auxiliar_'+(index+1), 'list', 'Altere ou complemente o nome da sua lista:', nameSuggest));
+                    easy != '1' ? jQuery('#group1 .auxiliar_'+(index+1)+' > div').append(self.htmlElement(result.tabelaListaModelo, 'auxiliar_'+(index+1), 'table', 'Nome da Tabela', element.sugestao)) : '';
                 }
             });
         },
