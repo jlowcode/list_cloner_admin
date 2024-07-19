@@ -100,6 +100,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         //$update[$fields->link] = COM_FABRIK_LIVESITE . 'index.php?option=com_fabrik&view=list&listid=' . $this->clones_info[$fields->lista_principal]->listId;
         $update[$fields->link] = "/" . strtolower(trim(preg_replace('/[^a-zA-Z0-9]+/', '-', iconv('UTF-8', 'ASCII//TRANSLIT', $formData[$listName . '___list_name_principal'])), '-'));
         $update['id_lista_principal'] = (int) $this->clones_info[$this->listaPrincipal]->listId;
+        $update['id_lista'] = (int) $this->clones_info[$this->listaPrincipal]->listId;
         $update = (Object) $update;
         JFactory::getDbo()->updateObject($listName, $update, 'id');
 
@@ -116,7 +117,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
                 return false;
             }
 
-            $db = JFactory::getDbo();
+            $db = Factory::getContainer()->get('DatabaseDriver');
             $query = $db->getQuery(true);
             $query->select('params')->from("#__fabrik_elements")->where('id = ' . (int) $this->suggestElementId);
             $db->setQuery($query);
@@ -243,7 +244,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
     protected function setUserGroup($id_principal) {
         $groupModel = new GroupModel();
         $app = Factory::getApplication();
-        $db = JFactory::getDbo();
+        $db = Factory::getContainer()->get('DatabaseDriver');
         $params = $this->getParams();
         
         $parentGroup = (int) $params->get('list_cloner_admin_parent_group', '1');
@@ -304,7 +305,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         if (is_array($idModelo)) {
             $idModelo = $idModelo[0];
         }
-        $db = JFactory::getDbo();
+        $db = Factory::getContainer()->get('DatabaseDriver');
         $query = $db->getQuery(true);
         $query->select($elementNamelistaPrincipal)->from($listaModelo)->where('id = ' . (int) $idModelo);
         $db->setQuery($query);
@@ -319,7 +320,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
     }
 
     protected function checkTableName ($name, $id=-1) {
-        $db = JFactory::getDbo();
+        $db = Factory::getContainer()->get('DatabaseDriver');
 
         //$name = $this->user->id . '_' . $name; //Names update
         $name = strtolower(str_replace(' ', '_', $name));
@@ -405,15 +406,15 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
             $d = $this->createTables($listId);
         }
 
-        $this->saveAuxiliarLists($formModelData, $listName, $id);
+        $this->saveAuxiliarLists($formModelData, $listName, $id, $listId);
         
 
         return true;
     }
 
     // To save the auxiliar lists on the table
-    protected function saveAuxiliarLists($formModelData, $listName, $id) {
-        $db = Factory::getDbo();
+    protected function saveAuxiliarLists($formModelData, $listName, $id, $listId) {
+        $db = Factory::getContainer()->get('DatabaseDriver');
 
         if($id == 'principal') {
             return;
@@ -428,6 +429,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         $dataAux->listas_menu = '0';
         $dataAux->prefixo = $this->prefix;
         $dataAux->id_lista_principal = $this->clones_info[$this->listaPrincipal]->listId;
+        $dataAux->id_lista = $this->clones_info[$listId]->listId;
 
         $insert = $db->insertObject($listName, $dataAux, 'id');
 
@@ -440,7 +442,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
 
     // $id Added by "Names update"
     protected function cloneForm($data, $listId, $id, $is_suggest = false) {
-        $db = JFactory::getDbo();
+        $db = Factory::getContainer()->get('DatabaseDriver');
         $fields_adm = $this->getFieldsAdministrator();
 
         //BEGIN - Update List_Cloner Names
@@ -513,7 +515,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
 
     // $id Added by "Names update"
     protected function cloneList($data, $listId, $id, $is_suggest = false) {
-        $db = JFactory::getDbo();
+        $db = Factory::getContainer()->get('DatabaseDriver');
         $params = $this->getParams();
         $fields_adm = $this->getFieldsAdministrator();
         //$data = $this->clones_info[$listId]->listModel->getTable();  //Commented by Author
@@ -627,7 +629,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
     }
 
     protected function cloneGroupsAndElements($groups, $listId, $id, $is_suggest = false) {
-        $db = JFactory::getDbo();
+        $db = Factory::getContainer()->get('DatabaseDriver');
         $fields_adm = $this->getFieldsAdministrator();
 
         //BEGIN - Update List_Cloner Names
@@ -729,7 +731,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
     }
 
     protected function cloneElements($elementsModel, $group_id, $listId, $id) {
-        $db = JFactory::getDbo();
+        $db = Factory::getContainer()->get('DatabaseDriver');
         $fields_adm = $this->getFieldsAdministrator();
         //$ordering = 1;    //Commented by Author
 
@@ -867,7 +869,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
     }
 
     protected function cloneJoin($data, $element_id, $element_name, $listId, $group_id, $type = '') {
-        $db = JFactory::getDbo();
+        $db = Factory::getContainer()->get('DatabaseDriver');
 
         $cloneData = new stdClass();
         $cloneData->id = 0;
@@ -944,7 +946,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
     }
 
     protected function createTables($listId) {
-        $db = JFactory::getDbo();
+        $db = Factory::getContainer()->get('DatabaseDriver');
         $tableName = $this->clones_info[$listId]->db_table_name;
         $oldTableName = $this->clones_info[$listId]->old_db_table_name;
 
@@ -969,7 +971,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
     }
 
     protected function createTablesRepeat($listId) {
-        $db = JFactory::getDbo();
+        $db = Factory::getContainer()->get('DatabaseDriver');
         $tableName = $this->clones_info[$listId]->db_table_name;
         $oldTableName = $this->clones_info[$listId]->old_db_table_name;
         $elementsRepeat = $this->clones_info[$listId]->elementsRepeat;
@@ -1225,7 +1227,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
     }
 
     public function checkDatabaseJoins() {
-        $db = JFactory::getDbo();
+        $db = Factory::getContainer()->get('DatabaseDriver');
 
         foreach($this->elementsId as $elementId) {
             $query = $db->getQuery(true);
@@ -1268,7 +1270,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
     }
 
     public function checkTableNameOld ($name) {
-        $db = JFactory::getDbo();
+        $db = Factory::getContainer()->get('DatabaseDriver');
 
         $name = $this->user->id . '_' . $name;
         $continue = false;
