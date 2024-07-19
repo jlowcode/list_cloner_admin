@@ -55,7 +55,7 @@ define(['jquery', 'fab/fabrik'], function (jQuery, Fabrik) {
                 jQuery("#adm_cloner_listas___name").val(jQuery('#adm_cloner_listas___list_name_principal').val());
 
                 jQuery('.list_cloner_element').each(function (key, element) {
-                    var origValue = jQuery(element).attr('orig_value');
+                    var origValue = jQuery(element).attr('orig_value').replace('_', '');
                     var actualValue = element.value;
 
                     if(actualValue == '' || origValue == actualValue) {
@@ -81,7 +81,7 @@ define(['jquery', 'fab/fabrik'], function (jQuery, Fabrik) {
             jQuery(".fabrikGroup").append(self.htmlLinha('principal'));
             
             if(easy == '1') {
-                nameSuggest = result.nomeListaPrincipal;
+                nameSuggest = result.nomeListaPrincipal.replace('_', '');
             } else {
                 jQuery("#group1 .principal").append(self.htmlLabel(result.nomeListaPrincipal, 'Nome da Lista Principal'));
             }
@@ -99,7 +99,7 @@ define(['jquery', 'fab/fabrik'], function (jQuery, Fabrik) {
                     jQuery(".fabrikGroup").append(self.htmlLinha('auxiliar_'+(index+1)));
                     
                     if(easy == '1') {
-                        var nameSuggest = element.nome;
+                        var nameSuggest = element.nome.replace('_', '');
                     } else {
                         jQuery('#group1 .auxiliar_'+(index+1)).append(self.htmlLabel(element.nome, 'Nome da Lista Auxiliar '+(index+1)));
                     }
