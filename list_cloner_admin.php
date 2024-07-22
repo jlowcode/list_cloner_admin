@@ -430,6 +430,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         $dataAux->prefixo = $this->prefix;
         $dataAux->id_lista_principal = $this->clones_info[$this->listaPrincipal]->listId;
         $dataAux->id_lista = $this->clones_info[$listId]->listId;
+        $dataAux->status = '1';
 
         $insert = $db->insertObject($listName, $dataAux, 'id');
 
