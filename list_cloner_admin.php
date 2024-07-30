@@ -63,7 +63,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
 
         if ($fields->lista_principal) {                                                 
             //BEGIN - Correction of repeatable groups
-            $nameTable = $this->easy == '1' ? preg_replace('/\s+/', '_', preg_replace('/[^a-zA-Z0-9\s]/', '_', iconv('UTF-8', 'ASCII//TRANSLIT', $formData[$listName . '___list_name_principal']))) : $formData[$listName . '___table_name_principal'];
+            $nameTable = $this->easy == '1' ? trim(preg_replace('/\s+/', '_', preg_replace('/[^a-zA-Z0-9\s]/', '_', iconv('UTF-8', 'ASCII//TRANSLIT', $formData[$listName . '___list_name_principal']))), '_') : $formData[$listName . '___table_name_principal'];
             $nameTable = substr($nameTable, 0, 40);
             $this->checkTableName($nameTable, 0);
             if ($fields->listas_auxiliares) {
@@ -77,7 +77,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
                         return false;
                     }
 
-                    $nameTableAux = $this->easy == '1' ? preg_replace('/\s+/', '_', preg_replace('/[^a-zA-Z0-9\s]/', '_', iconv('UTF-8', 'ASCII//TRANSLIT', $formData[$listName . '___list_name_auxiliar_' . $x]))) : $formData[$listName . '___table_name_auxiliar_' . $x];
+                    $nameTableAux = $this->easy == '1' ? trim(preg_replace('/\s+/', '_', preg_replace('/[^a-zA-Z0-9\s]/', '_', iconv('UTF-8', 'ASCII//TRANSLIT', $formData[$listName . '___list_name_auxiliar_' . $x]))), '_') : $formData[$listName . '___table_name_auxiliar_' . $x];
                     $nameTableAux = substr($nameTable, 0, 40);
                     $this->checkTableName($nameTableAux, $x);
                     $x++;
@@ -98,7 +98,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         $update = array();
         $update['id'] = $this->rowId;
         //$update[$fields->link] = COM_FABRIK_LIVESITE . 'index.php?option=com_fabrik&view=list&listid=' . $this->clones_info[$fields->lista_principal]->listId;
-        $update[$fields->link] = "/" . strtolower(trim(preg_replace('/[^a-zA-Z0-9]+/', '-', iconv('UTF-8', 'ASCII//TRANSLIT', $formData[$listName . '___list_name_principal'])), '-'));
+        $update[$fields->link] = "/" . trim(strtolower(trim(preg_replace('/[^a-zA-Z0-9]+/', '-', iconv('UTF-8', 'ASCII//TRANSLIT', $formData[$listName . '___list_name_principal'])), '-')), '_');
         $update['id_lista_principal'] = (int) $this->clones_info[$this->listaPrincipal]->listId;
         $update['id_lista'] = (int) $this->clones_info[$this->listaPrincipal]->listId;
         $update = (Object) $update;
@@ -377,7 +377,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         $info->newListJoinsIds = array();
         $info->old_db_table_name = $formModel->getTableName();
 
-        $nameTable = $this->easy == '1' ? preg_replace('/\s+/', '_', preg_replace('/[^a-zA-Z0-9\s]/', '_', iconv('UTF-8', 'ASCII//TRANSLIT', $formModelData->formDataWithTableName[$listName . '___list_name_' . $id]))) : $formModelData->formDataWithTableName[$listName . '___table_name_' . $id];
+        $nameTable = $this->easy == '1' ? trim(preg_replace('/\s+/', '_', preg_replace('/[^a-zA-Z0-9\s]/', '_', iconv('UTF-8', 'ASCII//TRANSLIT', $formModelData->formDataWithTableName[$listName . '___list_name_' . $id]))), '_') : $formModelData->formDataWithTableName[$listName . '___table_name_' . $id];
         $nameTable = substr($nameTable, 0, 40);
         $info->db_table_name = $this->checkTableName($nameTable);
 
@@ -423,9 +423,9 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         $dataAux = new stdClass();
         $dataAux->date_time = date('Y-m-d H:i:s');
         $dataAux->user = $this->user->id;
-        $dataAux->name = $formModelData->formDataWithTableName[$listName . '___list_name_' . $id];
+        $dataAux->name = trim($formModelData->formDataWithTableName[$listName . '___list_name_' . $id], '_');
         $dataAux->model = $formModelData->formDataWithTableName[$listName . '___model'][0];
-        $dataAux->link = "/" . strtolower(trim(preg_replace('/[^a-zA-Z0-9]+/', '-', iconv('UTF-8', 'ASCII//TRANSLIT', $formModelData->formDataWithTableName[$listName . '___list_name_' . $id])), '-'));
+        $dataAux->link = "/" . trim(strtolower(trim(preg_replace('/[^a-zA-Z0-9]+/', '-', iconv('UTF-8', 'ASCII//TRANSLIT', $formModelData->formDataWithTableName[$listName . '___list_name_' . $id])), '-')), '_');
         $dataAux->listas_menu = '0';
         $dataAux->prefixo = $this->prefix;
         $dataAux->id_lista_principal = $this->clones_info[$this->listaPrincipal]->listId;
@@ -461,7 +461,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         }
         else {
             //$cloneData->label = $data->label; //Name update
-            $cloneData->label = $formModelData->formDataWithTableName[$listName . '___list_name_' . $id];
+            $cloneData->label = trim($formModelData->formDataWithTableName[$listName . '___list_name_' . $id], '_');
             if (!$cloneData->label) {
                 return false;
             }
@@ -536,7 +536,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         }
         else {
             //$cloneData->label = $data->label; //Names update
-            $cloneData->label = $formModelData->formDataWithTableName[$listName . '___list_name_' . $id];
+            $cloneData->label = trim($formModelData->formDataWithTableName[$listName . '___list_name_' . $id], '_');
             if (!$cloneData->label) {
                 return false;
             }
@@ -643,7 +643,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         if ((($listId === $fields_adm->lista_principal) || ($is_suggest)) && ($fields_adm->titulo)) {
             $nameGroup = $fields_adm->titulo;
         } else {
-            $nameGroup = $formModelData->formDataWithTableName[$listName . '___list_name_' . $id];
+            $nameGroup = trim($formModelData->formDataWithTableName[$listName . '___list_name_' . $id], '_');
             $nameTable = substr($nameTable, 0, 40);
         }
 
