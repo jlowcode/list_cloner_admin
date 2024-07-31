@@ -19,32 +19,18 @@ define(['jquery', 'fab/fabrik'], function (jQuery, Fabrik) {
 		initialize: function (options) {
             var self = this;
             var actualTable = jQuery("[name='actualTable']").val();
-            var easy = jQuery("[name='easy']").val();
             
-            jQuery("#" + actualTable + "___model").on('change', function() {
-                jQuery(".classAddManual").remove();
-                var listid = jQuery("[name='listid']").val();
-                var listModel = jQuery("[name='listModel']").val();
-                var tableModel = jQuery("#" + actualTable + "___model").val();
-                var url = "/plugins/fabrik_form/list_cloner_admin/list_cloner_names.php?tableModel=" + tableModel + "&listid=" + listid + "&listModel=" + listModel;
-
-                if(tableModel != '') {
-                    jQuery.post(url, {}, function(response) {
-                        var result = JSON.parse(response);
-                
-                        if(result.sucesso != '' && result.erro == '') {
-                            var msg = result.sucesso;
-                            self.setPrincipal(result, easy);
-                            self.setAuxiliares(result, easy);
-                        }
-                        
-                        if(result.sucesso == '' && result.erro != '') {
-                            var msg = result.erro;
-                            alert(msg);
-                        }
-                    });
-                }
-            });
+            var isRadio = jQuery("#" + actualTable + "___model").closest('.fabrikElementContainer').attr('class').indexOf('mode-radio');
+            if(isRadio < 0 ) {
+                jQuery("#" + actualTable + "___model").on('change', function() {
+                    self.actionChange(false);
+                });
+            } else {
+                jQuery("#" + actualTable + "___model input[type='radio']").on('change', function() {
+                    self.actionChange(true);
+                });
+                self.actionChange(true);
+            }
 
             Fabrik.addEvent('fabrik.form.submit.start', function (form) {
                 var self = this;
@@ -74,6 +60,37 @@ define(['jquery', 'fab/fabrik'], function (jQuery, Fabrik) {
             }.bind(this));
         },
         
+        actionChange: function(isRadio) {
+            var self = this;
+
+            jQuery(".classAddManual").remove();
+
+            var listid = jQuery("[name='listid']").val();
+            var listModel = jQuery("[name='listModel']").val();
+            var actualTable = jQuery("[name='actualTable']").val();
+            var easy = jQuery("[name='easy']").val();
+
+            var tableModel = isRadio ? jQuery("#" + actualTable + "___model input[name='" + actualTable + "___model[]']:checked").val() : jQuery("#" + actualTable + "___model").val();
+            var url = "/plugins/fabrik_form/list_cloner_admin/list_cloner_names.php?tableModel=" + tableModel + "&listid=" + listid + "&listModel=" +    listModel;
+
+            if(tableModel != '') {
+                jQuery.post(url, {}, function(response) {
+                    var result = JSON.parse(response);
+            
+                    if(result.sucesso != '' && result.erro == '') {
+                        var msg = result.sucesso;
+                        self.setPrincipal(result, easy);
+                        self.setAuxiliares(result, easy);
+                    }
+                    
+                    if(result.sucesso == '' && result.erro != '') {
+                        var msg = result.erro;
+                        alert(msg);
+                    }
+                });
+            }
+        },
+
         setPrincipal: function (result, easy) {
             var self = this;
             var nameSuggest = '';
