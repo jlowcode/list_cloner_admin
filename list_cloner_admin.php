@@ -624,8 +624,8 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         $cloneData->auto_inc = $data->auto_inc;
         $cloneData->connection_id = $data->connection_id;
         $cloneData->created = date('Y-m-d H:i:s');
-        $cloneData->created_by = $data->created_by;
-        $cloneData->created_by_alias = $data->created_by_alias;
+        $cloneData->created_by = $this->user->id;
+        $cloneData->created_by_alias = $this->user->username;
         $cloneData->modified = date('Y-m-d H:i:s');
         $cloneData->modified_by = $this->user->id;
         $cloneData->checked_out = $data->checked_out;
