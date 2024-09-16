@@ -443,6 +443,13 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
             return;
         }
 
+        $listModel = $this->getModel()->getListModel();
+        $table = $listModel->getTable()->get('db_table_name');
+        $name = "`$table`.`name`";
+        $elements = $listModel->getElements('filtername');
+        $nameEl = $elements[$name];
+        $maxLength = (int) $nameEl->getParams()->get('maxlength');
+
         if($this->easy) {
             $labelName = $formModelData->formDataWithTableName[$listName . '___name_raw'];
             $model = $app->bootComponent('com_fabrik')->getMVCFactory()->createModel('List', 'FabrikFEModel');
@@ -458,7 +465,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         $dataAux = new stdClass();
         $dataAux->date_time = date('Y-m-d H:i:s');
         $dataAux->user = $this->user->id;
-        $dataAux->name = trim($labelName, '_');
+        $dataAux->name = substr(trim($labelName, '_'), 0, $maxLength);
         $dataAux->model = $formModelData->formDataWithTableName[$listName . '___model'][0];
         $dataAux->link = "/" . $tableName;
         $dataAux->listas_menu = '0';
