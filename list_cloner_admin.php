@@ -29,11 +29,11 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
     protected $prefix;
     protected $easy;
 
-    protected $tableNames = array();
-    protected $elementsId = array();
-    protected $vincName = array();
+    protected $tableNames = Array();
+    protected $elementsId = Array();
+    protected $vincName = Array();
 
-    protected $clones_info = array();
+    protected $clones_info = Array();
 
     public function onAfterProcess()
     {   
@@ -106,7 +106,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
             }
         }
 
-        $update = array();
+        $update = Array();
         $update['id'] = $this->rowId;
         $update[$fields->link] = "/" . trim(strtolower(trim(preg_replace('/[^a-zA-Z0-9]+/', '-', iconv('UTF-8', 'ASCII//TRANSLIT', $formData[$listName . '___name_raw'])), '-')), '_');
         $update['id_lista_principal'] = (int) $this->clones_info[$this->listaPrincipal]->listId;
@@ -377,10 +377,10 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         //END - Update List_Cloner Names
 
         $info = new stdClass();
-        $info->mappedGroups = array();
-        $info->mappedElements = array();
-        $info->elementsRepeat = array();
-        $info->newListJoinsIds = array();
+        $info->mappedGroups = Array();
+        $info->mappedElements = Array();
+        $info->elementsRepeat = Array();
+        $info->newListJoinsIds = Array();
         $info->old_db_table_name = $formModel->getTableName();
 
         if($this->easy) {
@@ -904,7 +904,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
 
             if ($cloneData->plugin === 'databasejoin') {
                 $this->elementsId[] = $element_id;
-                $dbJoinMulti = array('checkbox', 'multilist');
+                $dbJoinMulti = Array('checkbox', 'multilist');
                 if (in_array($params->database_join_display_type, $dbJoinMulti)) {
                     $this->clones_info[$listId]->elementsRepeat[] = $cloneData->name;
                     $this->cloneJoin($elementModel->getJoinModel()->getJoin(), $element_id, $cloneData->name, $listId, $group_id);
@@ -979,7 +979,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
             $cloneData->join_type = $data->join_type;
             $cloneData->group_id = $group_id;
 
-            $params = array();
+            $params = Array();
             $params['join-label'] = 'name';
             $params['type'] = 'element';
             $params['pk'] = '`' . $this->prefix . 'users`.`id`';
@@ -1116,7 +1116,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         //Textextract
         if (key_exists('textextract_file_from', $formParams)) {
             $textextract_file_from = (array) $formParams['textextract_file_from'];
-            $newTextExtract = array();
+            $newTextExtract = Array();
             foreach ($textextract_file_from as $key => $item) {
                 $newTextExtract[$key] = (string) $mappedElements[$item];
             }
@@ -1142,7 +1142,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
 
         //Upsert
         if (key_exists('upsert_insert_only', $formParams)) {
-            $keys = array('primary_key', 'upsert_fields', 'upsert_key');
+            $keys = Array('primary_key', 'upsert_fields', 'upsert_key');
             foreach ($this->clones_info as $id_list => $item) {
                 $old_id = (array) $formParams['table'];
                 if (in_array($id_list, $old_id)) {
@@ -1162,14 +1162,14 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         //Recursive_tree
         if (key_exists('list_elemento_origem', $formParams)) {
             $data = json_decode($formParams['list_elemento_origem']);
-            $newData = array();
+            $newData = Array();
             foreach ($data->elemento_origem as $item) {
                 $newData[] = (string) $mappedElements[$item];
             }
             $data->elemento_origem = $newData;
             $formParams['list_elemento_origem'] = json_encode($data);
             $data2 = json_decode($formParams['list_elemento_destino']);
-            $newData2 = array();
+            $newData2 = Array();
             foreach ($data2->elemento_destino as $item) {
                 $newData2[] = (string) $mappedElements[$item];
             }
@@ -1183,7 +1183,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
 
         //Metadata_Extract
         if (key_exists('thumb', $formParams)) {
-            $keys = array('thumb', 'link', 'title', 'description', 'subject', 'creator', 'date', 'format', 'coverage', 'publisher', 'identifier', 'language', 'type', 'contributor', 'relation', 'rights', 'source');
+            $keys = Array('thumb', 'link', 'title', 'description', 'subject', 'creator', 'date', 'format', 'coverage', 'publisher', 'identifier', 'language', 'type', 'contributor', 'relation', 'rights', 'source');
             foreach ($keys as $key) {
                 $formParams[$key] = (string) $mappedElements[$formParams[$key]];
             }
@@ -1210,7 +1210,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
 
         //List Search Elements
         $data = json_decode($listParams['list_search_elements']);
-        $newData = array();
+        $newData = Array();
         foreach ($data->search_elements as $item) {
             $newData[] = (string) $mappedElements[$item];
         }
@@ -1246,7 +1246,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         if ($listParams['open_archive_elements']) {
             $data2 = json_decode($listParams['open_archive_elements']);
             if(is_object($listParams['open_archive_elements'])) {
-                $newData2 = array();
+                $newData2 = Array();
                 foreach ($data2->dublin_core_element as $item) {
                     $newData2[] = (string) $mappedElements[$item];
                 }
@@ -1273,7 +1273,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         //Filter fields
         if ($listParams['filter-fields']) {
             $filter_fields = $listParams['filter-fields'];
-            $newFields = array();
+            $newFields = Array();
             foreach ($filter_fields as $field) {
                 $newFields[] = $this->user->id . '_' . $field;
             }
@@ -1292,7 +1292,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
 
         //Order by
         $order_by = json_decode($this->clones_info[$listId]->orderByList);
-        $newOrder_by = array();
+        $newOrder_by = Array();
         foreach ($order_by as $item) {
             $newOrder_by[] = (string) $mappedElements[$item];
         }
@@ -1311,7 +1311,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
 
         $obj = new stdClass();
         $obj->id = $this->clones_info[$listId]->listId;
-        $obj->order_by = JFactory::getDbo()->escape(json_encode($newOrder_by));
+        $obj->order_by = json_encode($newOrder_by);
         $obj->params = json_encode($listParams);
         $update = JFactory::getDbo()->updateObject($this->prefix . 'fabrik_lists', $obj, 'id');
 
