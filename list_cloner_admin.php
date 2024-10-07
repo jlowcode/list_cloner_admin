@@ -67,7 +67,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
                 $nameTable = $formData[$listName . '___table_name_principal'];
             }
 
-            $nameTable = substr($nameTable, 0, 27);
+            $nameTable = trim(substr($nameTable, 0, 27), '_');
             $nameTable = $this->checkTableName($nameTable, 0);
             if ($fields->listas_auxiliares) {
                 $x = 1;
@@ -89,7 +89,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
                         $nameTableAux = $formData[$listName . '___table_name_auxiliar_' . $x];
                     }
 
-                    $nameTableAux = substr($nameTableAux, 0, 27);
+                    $nameTableAux = trim(substr($nameTableAux, 0, 27), '_');
                     $nameTableAux = $this->checkTableName($nameTableAux, $x);
                     $x++;
                 }
@@ -400,7 +400,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
             $nameTable = $formModelData->formDataWithTableName[$listName . '___table_name_' . $id];
         }
 
-        $nameTable = substr(preg_replace('/_+/', '_', $nameTable), 0, 27);
+        $nameTable = trim(substr(preg_replace('/_+/', '_', $nameTable), 0, 27), '_');
         $info->db_table_name = $this->checkTableName($nameTable);
 
         if ($is_suggest) {
