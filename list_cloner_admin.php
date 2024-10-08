@@ -108,7 +108,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
 
         $update = Array();
         $update['id'] = $this->rowId;
-        $update[$fields->link] = "/" . trim(strtolower(trim(preg_replace('/[^a-zA-Z0-9]+/', '-', iconv('UTF-8', 'ASCII//TRANSLIT', $formData[$listName . '___name_raw'])), '-')), '_');
+        $update[$fields->link] = '/' . $this->checkAliasMenu($formData[$listName . '___name_raw']);
         $update['id_lista_principal'] = (int) $this->clones_info[$this->listaPrincipal]->listId;
         $update['id_lista'] = (int) $this->clones_info[$this->listaPrincipal]->listId;
         $update = (Object) $update;
@@ -329,6 +329,27 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         return $fields;
     }
 
+    protected function checkAliasMenu($name) {
+        $app = Factory::getApplication();
+        $menu = $app->getMenu();
+
+        $alias = trim(strtolower(trim(preg_replace('/[^a-zA-Z0-9]+/', '-', iconv('UTF-8', 'ASCII//TRANSLIT', $name)), '-')), '_');
+        $continue = false;
+        $flag = 1;
+        while ($continue === false) {
+            $test = $flag == 1 ? $alias : "{$alias}-{$flag}";
+            $menuAlias = $menu->getItems('alias', $test, true);
+
+            if (!empty($menuAlias)) {
+                $flag++;
+            } else {
+                $continue = true;
+            }
+        }
+
+        return $flag == 1 ? $alias : "{$alias}-{$flag}";
+    }
+
     protected function checkTableName ($name, $id=-1) {
         $db = Factory::getContainer()->get('DatabaseDriver');
 
@@ -467,7 +488,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         $dataAux->user = $this->user->id;
         $dataAux->name = substr(trim($labelName, '_'), 0, $maxLength);
         $dataAux->model = $formModelData->formDataWithTableName[$listName . '___model'][0];
-        $dataAux->link = "/" . $tableName;
+        $dataAux->link = "/" . $this->checkAliasMenu($tableName);
         $dataAux->listas_menu = '0';
         $dataAux->prefixo = $this->prefix;
         $dataAux->id_lista_principal = $this->clones_info[$this->listaPrincipal]->listId;
@@ -672,14 +693,14 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
 
         $this->clones_info[$listId]->listId = $db->insertid();
 
-        if($formModelData->formDataWithTableName[$listName . '___listas_menu'] || $this->easy) {
+        if($formModelData->formDataWithTableName[$listName . '___listas_menu'] || $this->easy) {      
             $db->setQuery('SELECT extension_id FROM #__extensions WHERE `name` = "com_fabrik" AND `type` = "component"');
             $component_id = $db->loadResult();
 
             $dataMenu = new stdClass();
             $dataMenu->id = 0;
             $dataMenu->title = $cloneData->label;
-            $dataMenu->alias = '';
+            $dataMenu->alias = $this->checkAliasMenu($labelName);
             $dataMenu->note = '';
             $dataMenu->link = 'index.php?option=com_fabrik&view=list&listid=' . $this->clones_info[$listId]->listId;
             $dataMenu->menutype = $params->get('list_cloner_admin_menu', 'mainmenu');
