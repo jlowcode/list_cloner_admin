@@ -645,7 +645,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
             $cloneData->label .= ' - Revisão';
         }
 
-        $cloneData->introduction = $data->introduction;
+        $cloneData->introduction = $formModelData->formDataWithTableName[$listName . '___description'];
         $cloneData->form_id = $this->clones_info[$listId]->formId;
         $cloneData->db_table_name = $this->clones_info[$listId]->db_table_name;
         $cloneData->db_primary_key = $this->clones_info[$listId]->db_table_name . '.id';
