@@ -48,6 +48,11 @@
        </fieldset>
 
        <fieldset name="plg-form-list_cloner_admin-menu" label="COM_FABRIK_OPTIONS">
+              <field name="list_cloner_admin_conn_id"
+		       label="PLG_FABRIK_FORM_LIST_CLONER_ADMIN_CONNECTION_LABEL"
+		       description="PLG_FABRIK_FORM_LIST_CLONER_ADMIN_CONNECTION_DESC"
+		       type="connections"/>
+
               <field name="list_cloner_admin_menu"
                    label="PLG_FABRIK_FORM_LIST_CLONER_ADMIN_MENU_LABEL"
                    description="PLG_FABRIK_FORM_LIST_CLONER_ADMIN_MENU_DESC"

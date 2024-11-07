@@ -9,6 +9,7 @@ use Joomla\CMS\Router\Route;
 use Joomla\Component\Users\Administrator\Model\GroupModel;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
+use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 
 // Require the abstract plugin class
 require_once COM_FABRIK_FRONTEND . '/models/plugin-form.php';
@@ -42,7 +43,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         $params = $this->getParams();
         $this->easy = (bool) $params->get('list_cloner_admin_easy');
 
-        $this->user = JFactory::getUser();
+        $this->user = Factory::getApplication()->getIdentity();
         $formModel = $this->getModel();
         $formData = $formModel->formDataWithTableName; // Changed of $formModel->formData
         $listName = $formModel->getTableName();
@@ -112,7 +113,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         $update['id_lista_principal'] = (int) $this->clones_info[$this->listaPrincipal]->listId;
         $update['id_lista'] = (int) $this->clones_info[$this->listaPrincipal]->listId;
         $update = (Object) $update;
-        JFactory::getDbo()->updateObject($listName, $update, 'id');
+        Factory::getContainer()->get('DatabaseDriver')->updateObject($listName, $update, 'id');
 
         if ($this->suggestId) {
             $process = $this->clone_process($this->suggestId, 0, true);
@@ -644,13 +645,14 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         if ($is_suggest) {
             $cloneData->label .= ' - Revisão';
         }
+        $conn_id = $params->get('list_cloner_admin_conn_id') ? $params->get('list_cloner_admin_conn_id') : $data->connection_id;
 
         $cloneData->introduction = $formModelData->formDataWithTableName[$listName . '___description'];
         $cloneData->form_id = $this->clones_info[$listId]->formId;
         $cloneData->db_table_name = $this->clones_info[$listId]->db_table_name;
         $cloneData->db_primary_key = $this->clones_info[$listId]->db_table_name . '.id';
         $cloneData->auto_inc = $data->auto_inc;
-        $cloneData->connection_id = $data->connection_id;
+        $cloneData->connection_id = $conn_id;
         $cloneData->created = date('Y-m-d H:i:s');
         $cloneData->created_by = $this->user->id;
         $cloneData->created_by_alias = $this->user->username;
@@ -1062,15 +1064,28 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         return $insert;
     }
 
-    protected function createTables($listId) {
+    /**
+     * This method load the connection data and create the main table from local connection to connection data
+     * 
+     * @param       Int             $listId         The id of the list
+     * 
+     * @return      Boolean
+     */
+    protected function createTables($listId) 
+    {
+        $dbData = $this->loadConnection();
         $db = Factory::getContainer()->get('DatabaseDriver');
+
         $tableName = $this->clones_info[$listId]->db_table_name;
         $oldTableName = $this->clones_info[$listId]->old_db_table_name;
 
-        $db->setQuery("CREATE TABLE $tableName LIKE $oldTableName");
+        $db->setQuery("SHOW CREATE TABLE $oldTableName");
+        $createTable = $db->loadRow()[1];
+        $createTable = preg_replace('/' . preg_quote($oldTableName, '/') . '/', $tableName, $createTable, 1);
+        $dbData->setQuery($createTable);
         try
         {
-            $db->execute();
+            $dbData->execute();
         }
         catch (RuntimeException $e)
         {
@@ -1087,8 +1102,41 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         return true;
     }
 
-    protected function createTablesRepeat($listId) {
+    /**
+	 * Load connection object
+	 *
+	 * @return      Joomla\Database\Mysql\MysqlDriver
+     * 
+     * @since       v4.1.1
+	 */
+	protected function loadConnection()
+	{
+		$params = $this->getParams();
+		$conn_id = $params->get('list_cloner_admin_conn_id');
+		$cid = $this->getModel()->getlistModel()->getConnection()->getConnection()->id;
+
+		if ($cid == $conn_id) {
+			$conn = $this->getlistModel()->getConnection();
+		} else {
+			$conn = BaseDatabaseModel::getInstance('Connection', 'FabrikFEModel');
+			$conn->setId($conn_id);
+		}
+
+		return $conn->getDb();
+	}
+
+    /**
+     * This method load the connection data and create the auxiliar tables from local connection to connection data
+     * 
+     * @param       Int             $listId         The id of the list
+     * 
+     * @return      Boolean
+     */
+    protected function createTablesRepeat($listId) 
+    {
+        $dbData = $this->loadConnection();
         $db = Factory::getContainer()->get('DatabaseDriver');
+
         $tableName = $this->clones_info[$listId]->db_table_name;
         $oldTableName = $this->clones_info[$listId]->old_db_table_name;
         $elementsRepeat = $this->clones_info[$listId]->elementsRepeat;
@@ -1097,10 +1145,13 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
             $cloneTable = $tableName . '_repeat_' . $element;
             $table = $oldTableName . '_repeat_' . $element;
 
-            $db->setQuery("CREATE TABLE $cloneTable LIKE $table");
+            $db->setQuery("SHOW CREATE TABLE $table");
+            $createTable = $db->loadRow()[1];
+            $createTable = preg_replace('/' . preg_quote($table, '/') . '/', $cloneTable, $createTable, 1);
+            $dbData->setQuery($createTable);
             try
             {
-                $db->execute();
+                $dbData->execute();
             }
             catch (RuntimeException $e)
             {
@@ -1215,7 +1266,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         $obj = new stdClass();
         $obj->id = $this->clones_info[$listId]->formId;
         $obj->params = json_encode($formParams);
-        $update = JFactory::getDbo()->updateObject($this->prefix . 'fabrik_forms', $obj, 'id');
+        $update = Factory::getContainer()->get('DatabaseDriver')->updateObject($this->prefix . 'fabrik_forms', $obj, 'id');
 
         if (!$update) {
             return false;
@@ -1334,7 +1385,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         $obj->id = $this->clones_info[$listId]->listId;
         $obj->order_by = json_encode($newOrder_by);
         $obj->params = json_encode($listParams);
-        $update = JFactory::getDbo()->updateObject($this->prefix . 'fabrik_lists', $obj, 'id');
+        $update = Factory::getContainer()->get('DatabaseDriver')->updateObject($this->prefix . 'fabrik_lists', $obj, 'id');
 
         if (!$update) {
             return false;
