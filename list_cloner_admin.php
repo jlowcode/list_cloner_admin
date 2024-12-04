@@ -778,7 +778,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
 
             //Updated to different names groups
             $cloneData->name = trim($nameGroup . ' ' . $x);
-            $cloneData->label = trim($nameGroup . ' ' . $x);
+            $cloneData->label = '';
             $x++;
 
             $insert1 = $db->insertObject($this->prefix . 'fabrik_groups', $cloneData, 'id');
