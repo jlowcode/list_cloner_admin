@@ -915,7 +915,10 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
                     $this->suggestCond = $cond;
                     $this->suggestCloned = true;
                 }
+            } else if ($cloneData->plugin == 'ordering') {
+                $params->ref_tree = $this->clones_info[$listId]->mappedElements[$params->ref_tree];
             }
+
             $cloneData->params = json_encode($params);
 
             $insert = $db->insertObject($this->prefix . 'fabrik_elements', $cloneData, 'id');
