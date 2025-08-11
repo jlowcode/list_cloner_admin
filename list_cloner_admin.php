@@ -1378,12 +1378,15 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
                     $update->params = $params;
                     $db->updateObject($this->prefix . 'fabrik_elements', $update, 'id');
 
-                    $updateJoin = new stdClass();
-                    $updateJoin->table_join = $newNameTable;
-                    $paramsJoin->pk = str_replace($result->table_join, $newNameTable, $paramsJoin->pk);
-                    $updateJoin->id = $result->join_id;
-                    $updateJoin->params = json_encode($paramsJoin);
-                    $db->updateObject($this->prefix . 'fabrik_joins', $updateJoin, 'id');
+                    $autoComplete = json_decode($params)->database_join_display_type == 'auto-complete';
+                    if($autoComplete) {
+                        $updateJoin = new stdClass();
+                        $updateJoin->table_join = $newNameTable;
+                        $paramsJoin->pk = str_replace($result->table_join, $newNameTable, $paramsJoin->pk);
+                        $updateJoin->id = $result->join_id;
+                        $updateJoin->params = json_encode($paramsJoin);
+                        $db->updateObject($this->prefix . 'fabrik_joins', $updateJoin, 'id');
+                    }
                 }
             }
         }
