@@ -17,9 +17,20 @@
 	use Joomla\CMS\Factory;
 
 	// Dados do Form e Pré Estabelecidos //
-	$idTableModel = $_GET['tableModel'];
-	$idlista = $_GET['listid'];
-	$listModel = $_GET['listModel'];
+	$app = Factory::getApplication();
+	$input = $app->getInput();
+	$idTableModel = $input->getInt('tableModel');
+	$idlista = $input->getInt('listid');
+	$listModel = $input->getCmd('listModel');
+
+	if ($idTableModel <= 0 || $idlista <= 0 || !preg_match('/^[A-Za-z0-9_]+$/', $listModel)) {
+		http_response_code(400);
+		echo json_encode([
+			"sucesso" => "",
+			"erro" => "Parametros invalidos",
+		]);
+		exit;
+	}
 
 	// Ligação ao banco de dados //	
 	$db = Factory::getDbo();
@@ -29,7 +40,7 @@
 	$query->clear()
 		  ->select($db->quoteName('db_table_name') . 'AS tabelaListaModelo')
 		  ->from($db->quoteName($prefix . 'fabrik_lists') . 'AS l')
-		  ->where('l.id = "' . $idlista . '"');
+		  ->where($db->quoteName('l.id') . ' = ' . (int) $idlista);
 
 	$db->setQuery($query);
 	$result = $db->loadObject();
@@ -51,16 +62,18 @@
 		  ->join('LEFT', $db->quoteName($listModel . '_repeat_extra_lists') . 'AS e ON m.id = e.parent_id')
 		  ->join('LEFT', $db->quoteName($prefix . 'fabrik_lists') . 'AS l ON e.extra_lists = l.id')
 		  ->join('LEFT', $db->quoteName($prefix . 'fabrik_lists') . 'AS le ON m.main_list = le.id')
-		  ->where('m.id = "' . $idTableModel . '"');
+		  ->where($db->quoteName('m.id') . ' = ' . (int) $idTableModel);
 
 	$db->setQuery($query);
 	$result = $db->loadObjectList();
 	
-	$nomeListaModelo = $result['0']->nomeListaModelo;
-	$usuario = $result['0']->idUsuario;
-	$nomeListaPrincipal = $result['0']->nomeListaPrincipal;
-	$idListaPrincipal = $result['0']->idListaPrincipal;
-	$nomeTablePrincipal = $result['0']->nomeTablePrincipal;
+	if (!empty($result)) {
+		$nomeListaModelo = $result['0']->nomeListaModelo;
+		$usuario = $result['0']->idUsuario;
+		$nomeListaPrincipal = $result['0']->nomeListaPrincipal;
+		$idListaPrincipal = $result['0']->idListaPrincipal;
+		$nomeTablePrincipal = $result['0']->nomeTablePrincipal;
+	}
 
 	$resultExtras = array();
 	foreach($result as $key => $relacao) {
@@ -100,7 +113,7 @@
         $continue = false;
         $flag = 1;
         while ($continue === false) {
-            $db->setQuery("SHOW TABLES LIKE '{$name}_{$flag}'");
+            $db->setQuery('SHOW TABLES LIKE ' . $db->quote($name . '_' . $flag));
             $result = $db->loadResult();
             if ($result) {
                 $flag++;

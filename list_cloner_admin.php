@@ -359,9 +359,9 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         $flag = 1;
         while ($continue === false) {
             if($flag == 1) {
-                $db->setQuery("SHOW TABLES LIKE '{$name}'");
+                $db->setQuery('SHOW TABLES LIKE ' . $db->quote($name));
             } else {
-                $db->setQuery("SHOW TABLES LIKE '{$name}_{$flag}'");
+                $db->setQuery('SHOW TABLES LIKE ' . $db->quote($name . '_' . $flag));
             }
             $result = $db->loadResult();
             if ($result) {
@@ -795,7 +795,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
                 $tableName = $this->clones_info[$listId]->db_table_name . "_" . $obj->group_id . "_repeat";
                 $oldTableName = $this->clones_info[$listId]->old_db_table_name . "_" . $oldId . "_repeat";
 
-                $db->setQuery("CREATE TABLE $tableName LIKE $oldTableName");
+                $db->setQuery('CREATE TABLE ' . $db->quoteName($tableName) . ' LIKE ' . $db->quoteName($oldTableName));
 
                 $cloneDataJoins = new stdClass();
                 $cloneDataJoins->id = 0;
@@ -867,7 +867,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
             $params = json_decode($cloneData->params);
             if ($cloneData->plugin === 'databasejoin') {
                 $query = $db->getQuery(true);
-                $query->select('id')->from($this->prefix . "fabrik_lists")->where("db_table_name = '{$params->join_db_name}'");
+                $query->select('id')->from($this->prefix . "fabrik_lists")->where($db->quoteName('db_table_name') . ' = ' . $db->quote($params->join_db_name));
                 $db->setQuery($query);
                 $res = $db->loadResult();
                 if (in_array($res, $fields_adm->listas_auxiliares)) {
@@ -875,7 +875,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
                     $continue = false;
                     $flag = 1;
                     while ($continue === false) {
-                        $db->setQuery("SHOW TABLES LIKE '{$new_table_name}_{$flag}'");
+                        $db->setQuery('SHOW TABLES LIKE ' . $db->quote($new_table_name . '_' . $flag));
                         $result = $db->loadResult();
                         if ($result) {
                             $flag++;
@@ -1070,7 +1070,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         $tableName = $this->clones_info[$listId]->db_table_name;
         $oldTableName = $this->clones_info[$listId]->old_db_table_name;
 
-        $db->setQuery("CREATE TABLE $tableName LIKE $oldTableName");
+        $db->setQuery('CREATE TABLE ' . $db->quoteName($tableName) . ' LIKE ' . $db->quoteName($oldTableName));
         try
         {
             $db->execute();
@@ -1100,7 +1100,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
             $cloneTable = $tableName . '_repeat_' . $element;
             $table = $oldTableName . '_repeat_' . $element;
 
-            $db->setQuery("CREATE TABLE $cloneTable LIKE $table");
+            $db->setQuery('CREATE TABLE ' . $db->quoteName($cloneTable) . ' LIKE ' . $db->quoteName($table));
             try
             {
                 $db->execute();
@@ -1399,7 +1399,7 @@ class PlgFabrik_FormList_cloner_admin extends PlgFabrik_Form
         $continue = false;
         $flag = 1;
         while ($continue === false) {
-            $db->setQuery("SHOW TABLES LIKE '{$name}_{$flag}'");
+            $db->setQuery('SHOW TABLES LIKE ' . $db->quote($name . '_' . $flag));
             $result = $db->loadResult();
             if ($result) {
                 $flag++;
